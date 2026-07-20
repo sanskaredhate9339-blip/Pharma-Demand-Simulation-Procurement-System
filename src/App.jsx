@@ -24,11 +24,14 @@ export default function App() {
   }, [rawUploadedData, simDate]);
 
   const handleDataLoaded = (rawData) => {
+    console.log("handleDataLoaded called with", rawData.length, "rows");
     setIsProcessing(true);
     // Simulate brief processing delay for premium user feedback
     setTimeout(() => {
+      console.log("Setting rawUploadedData");
       setRawUploadedData(rawData);
       setIsProcessing(false);
+      console.log("Processing complete, dashboard should render");
     }, 1000);
   };
 

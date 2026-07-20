@@ -24,16 +24,19 @@ export default function FileUploader({ onDataLoaded, onSampleLoaded }) {
   };
 
   const processFile = (file) => {
+    console.log("CSV upload started");
     setError(null);
     setSuccess(false);
     setIsLoading(true);
 
     if (!file) {
+      console.log("No file provided");
       setIsLoading(false);
       return;
     }
 
     if (!file.name.endsWith(".csv")) {
+      console.log("Invalid file format");
       setError("Invalid file format. Please upload a structured CSV (.csv) ledger file.");
       setIsLoading(false);
       return;
@@ -41,12 +44,18 @@ export default function FileUploader({ onDataLoaded, onSampleLoaded }) {
 
     // Simulate 600ms load delay to represent parsing overhead & show loading state
     setTimeout(() => {
+      console.log("Starting CSV parsing with PapaParse");
       Papa.parse(file, {
         header: true,
         skipEmptyLines: true,
+        worker: true, // Enable worker mode for large files
         complete: (results) => {
+          console.log("CSV parsing completed", results);
           const headers = results.meta.fields || [];
+          console.log("Headers found:", headers);
+          
           if (!validateHeaders(headers)) {
+            console.log("Validation failed - missing required headers");
             setError(
               "Schema mismatch. Required headers: 'Product Name', 'Quantity', 'Month', 'Year'."
             );
@@ -55,17 +64,20 @@ export default function FileUploader({ onDataLoaded, onSampleLoaded }) {
           }
 
           if (results.data.length === 0) {
+            console.log("Validation failed - no data records");
             setError("The uploaded CSV document contains no data records.");
             setIsLoading(false);
             return;
           }
 
+          console.log("Validation successful, setting preview data");
           setSuccess(true);
           setIsLoading(false);
           setPreviewData(results.data);
           setDataSource("CSV Upload");
         },
         error: (err) => {
+          console.error("PapaParse error:", err);
           setError("Parsing engine failed: " + err.message);
           setIsLoading(false);
         },
@@ -96,8 +108,13 @@ export default function FileUploader({ onDataLoaded, onSampleLoaded }) {
   };
 
   const handleConfirmPreview = () => {
+    console.log("Continue to Dashboard clicked");
     if (previewData) {
+      console.log("Calling onDataLoaded with", previewData.length, "rows");
       onDataLoaded(previewData);
+      console.log("Moving to dashboard");
+    } else {
+      console.error("No preview data available");
     }
   };
 
@@ -432,9 +449,11 @@ export default function FileUploader({ onDataLoaded, onSampleLoaded }) {
           <button
             onClick={() => {
               if (!isLoading && !success) {
+                console.log("Load Seeded Database clicked");
                 setPreviewData(SAMPLE_DATA);
                 setDataSource("Seeded Database — 8 clinical formulations, Sep-Dec 2020");
                 setSuccess(true);
+                console.log("Seeded data loaded, preview should show");
               }
             }}
             disabled={isLoading || success}
