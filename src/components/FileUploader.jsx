@@ -138,7 +138,19 @@ export default function FileUploader({ onDataLoaded, onSampleLoaded }) {
 
   const handleCellEdit = (rowIndex, field, value) => {
     const updatedData = [...previewData];
-    updatedData[rowIndex][field] = value;
+    // Find the actual key name in the row object (case-insensitive)
+    const row = updatedData[rowIndex];
+    const lowerField = field.toLowerCase();
+    let actualKey = null;
+    for (const key in row) {
+      if (key.toLowerCase() === lowerField) {
+        actualKey = key;
+        break;
+      }
+    }
+    if (actualKey) {
+      updatedData[rowIndex][actualKey] = value;
+    }
     setPreviewData(updatedData);
   };
 
@@ -150,13 +162,34 @@ export default function FileUploader({ onDataLoaded, onSampleLoaded }) {
     setEditingCell(null);
   };
 
+  // Helper function to get value from row with case-insensitive key matching
+  const getRowValue = (row, keyName) => {
+    const lowerKey = keyName.toLowerCase();
+    for (const key in row) {
+      if (key.toLowerCase() === lowerKey) {
+        return row[key];
+      }
+    }
+    return "";
+  };
+
   // Calculate preview metadata
   const previewMetadata = useMemo(() => {
     if (!previewData || previewData.length === 0) return null;
     
-    const uniqueProducts = new Set(previewData.map(item => item["Product Name"])).size;
-    const months = new Set(previewData.map(item => item["Month"])).size;
-    const years = new Set(previewData.map(item => item["Year"])).size;
+    console.log("Calculating preview metadata for", previewData.length, "rows");
+    
+    const uniqueProducts = new Set(
+      previewData.map(item => getRowValue(item, "Product Name")).filter(Boolean)
+    ).size;
+    const months = new Set(
+      previewData.map(item => getRowValue(item, "Month")).filter(Boolean)
+    ).size;
+    const years = new Set(
+      previewData.map(item => getRowValue(item, "Year")).filter(Boolean)
+    ).size;
+    
+    console.log("Metadata calculated:", { uniqueProducts, monthCount: months, yearCount: years });
     
     return {
       rowCount: previewData.length,
@@ -310,7 +343,7 @@ export default function FileUploader({ onDataLoaded, onSampleLoaded }) {
                         <input
                           type="text"
                           autoFocus
-                          defaultValue={row["Product Name"]}
+                          defaultValue={getRowValue(row, "Product Name")}
                           onBlur={(e) => {
                             handleCellEdit(idx, "Product Name", e.target.value);
                             stopEditing();
@@ -327,7 +360,7 @@ export default function FileUploader({ onDataLoaded, onSampleLoaded }) {
                         />
                       ) : (
                         <span className="flex items-center gap-2">
-                          {row["Product Name"]}
+                          {getRowValue(row, "Product Name")}
                           <span className="text-ink-2/40 text-[10px]">✎</span>
                         </span>
                       )}
@@ -340,7 +373,7 @@ export default function FileUploader({ onDataLoaded, onSampleLoaded }) {
                         <input
                           type="number"
                           autoFocus
-                          defaultValue={row["Quantity"]}
+                          defaultValue={getRowValue(row, "Quantity")}
                           onBlur={(e) => {
                             handleCellEdit(idx, "Quantity", e.target.value);
                             stopEditing();
@@ -357,7 +390,7 @@ export default function FileUploader({ onDataLoaded, onSampleLoaded }) {
                         />
                       ) : (
                         <span className="flex items-center gap-2">
-                          {row["Quantity"]}
+                          {getRowValue(row, "Quantity")}
                           <span className="text-ink-2/40 text-[10px]">✎</span>
                         </span>
                       )}
@@ -370,7 +403,7 @@ export default function FileUploader({ onDataLoaded, onSampleLoaded }) {
                         <input
                           type="text"
                           autoFocus
-                          defaultValue={row["Month"]}
+                          defaultValue={getRowValue(row, "Month")}
                           onBlur={(e) => {
                             handleCellEdit(idx, "Month", e.target.value);
                             stopEditing();
@@ -387,7 +420,7 @@ export default function FileUploader({ onDataLoaded, onSampleLoaded }) {
                         />
                       ) : (
                         <span className="flex items-center gap-2">
-                          {row["Month"]}
+                          {getRowValue(row, "Month")}
                           <span className="text-ink-2/40 text-[10px]">✎</span>
                         </span>
                       )}
@@ -400,7 +433,7 @@ export default function FileUploader({ onDataLoaded, onSampleLoaded }) {
                         <input
                           type="number"
                           autoFocus
-                          defaultValue={row["Year"]}
+                          defaultValue={getRowValue(row, "Year")}
                           onBlur={(e) => {
                             handleCellEdit(idx, "Year", e.target.value);
                             stopEditing();
@@ -417,7 +450,7 @@ export default function FileUploader({ onDataLoaded, onSampleLoaded }) {
                         />
                       ) : (
                         <span className="flex items-center gap-2">
-                          {row["Year"]}
+                          {getRowValue(row, "Year")}
                           <span className="text-ink-2/40 text-[10px]">✎</span>
                         </span>
                       )}
