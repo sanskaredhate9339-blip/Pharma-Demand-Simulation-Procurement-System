@@ -48,7 +48,7 @@ export default function App() {
             <div>
               <div className="flex items-center gap-2">
                 <span className="font-display font-bold text-base text-ink tracking-tight">
-                  Aegis Flow
+                  Ageis Flow
                 </span>
                 <span className="px-1.5 py-0.5 rounded-sm text-[10px] font-mono font-semibold bg-accent/10 text-accent border border-accent/20">
                   v2.0
@@ -142,7 +142,7 @@ export default function App() {
       {/* Footer (Ft2 Inline Restrained) */}
       <footer className="border-t border-rule py-6 bg-paper-2/20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-ink-2 font-body">
-          <p>© 2026 Aegis Flow. Seeded FEFO Warehouse & Demand Forecast Simulation.</p>
+          <p>© 2026 Ageis Flow. Seeded FEFO Warehouse & Demand Forecast Simulation.</p>
           <p className="text-right">
             Expiry Horizon: 120 Days | Safety Buffer: 20% | Sim Date: {simDate}
           </p>

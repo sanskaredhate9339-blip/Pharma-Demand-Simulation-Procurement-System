@@ -1,4 +1,4 @@
-# Design — Aegis Flow
+# Design — Ageis Flow
 
 A locked design system for this app. Every page and component redesign reads this file before emitting code. Do not regenerate per component — extend or amend this file when the system needs to grow.
 
@@ -47,7 +47,7 @@ modern-minimal
 - Dashboard Workspace: Data-dense, typography-only layout. No decorative art, drawings, or standard purple glows.
 
 ## What pages MUST share
-- The Aegis Flow logotype.
+- The Ageis Flow logotype.
 - The accent color and its minimal placement (<= 5% of viewport footprint).
 - The Display, Body, and Mono font stacks.
 - The CTA button voice (6px border-radius, same padding rhythm, uppercase or sentence case text).

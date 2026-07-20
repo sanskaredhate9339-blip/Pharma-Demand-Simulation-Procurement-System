@@ -230,7 +230,7 @@ src/
 
 ## License
 
-© 2026 Aegis Flow. All rights reserved.
+© 2026 Ageis Flow. All rights reserved.
 
 ## Contributing
 
