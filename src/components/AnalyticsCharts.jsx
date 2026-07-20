@@ -1,8 +1,3 @@
-/* Hallmark · component: analytics-charts · genre: modern-minimal · theme: custom (light)
- * states: default · hover · active · focus-visible
- * contrast: pass (APCA conformant)
- */
-
 import React, { useState, useMemo } from "react";
 import {
   ResponsiveContainer,

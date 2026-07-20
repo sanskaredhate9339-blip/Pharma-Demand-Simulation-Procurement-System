@@ -1,9 +1,3 @@
-/* Hallmark · macrostructure: Workbench · theme: custom · vibe: "industrial precision, warm, clinical"
- * paper: oklch(98% 0.01 85) · accent: oklch(65% 0.15 145)
- * display: Outfit · body: Inter · axes: light / geometric-sans / chromatic-mint
- * studied: no · context: explicit · v1.0.0
- */
-
 import React, { useState, useMemo } from "react";
 import { runSimulation } from "./utils/simulation";
 import FileUploader from "./components/FileUploader";

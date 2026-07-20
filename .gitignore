@@ -22,3 +22,8 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Cascade/Agent files
+.agents/
+skills-lock.json
+.hallmark/

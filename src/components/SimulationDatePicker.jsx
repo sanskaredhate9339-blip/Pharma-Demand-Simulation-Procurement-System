@@ -1,8 +1,3 @@
-/* Hallmark · component: simulation-date-picker · genre: modern-minimal · theme: custom (light)
- * states: default · hover · focus-within
- * contrast: pass (APCA conformant)
- */
-
 import React from 'react';
 import { Calendar } from 'lucide-react';
 

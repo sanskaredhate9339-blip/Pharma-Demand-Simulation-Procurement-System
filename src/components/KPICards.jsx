@@ -1,8 +1,3 @@
-/* Hallmark · component: kpi-cards · genre: modern-minimal · theme: custom (light)
- * states: default
- * contrast: pass (APCA conformant)
- */
-
 import React from "react";
 import { AlertOctagon, TrendingUp, CalendarDays, ClipboardList } from "lucide-react";
 

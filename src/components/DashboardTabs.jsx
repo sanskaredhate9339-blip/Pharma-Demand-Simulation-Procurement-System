@@ -1,8 +1,3 @@
-/* Hallmark · component: dashboard-tabs · genre: modern-minimal · theme: custom (light)
- * states: default · hover · focus · active · disabled
- * contrast: pass (APCA conformant)
- */
-
 import React, { useState, useMemo } from "react";
 import { 
   Search, Download, ChevronLeft, ChevronRight, ArrowUpDown, 

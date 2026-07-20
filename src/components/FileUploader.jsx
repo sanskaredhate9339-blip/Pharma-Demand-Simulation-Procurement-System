@@ -1,8 +1,3 @@
-/* Hallmark · component: file-uploader · genre: modern-minimal · theme: custom (light)
- * states: default · hover · focus · active · disabled · loading · error · success · preview
- * contrast: pass (APCA conformant)
- */
-
 import React, { useState, useRef, useMemo } from "react";
 import Papa from "papaparse";
 import { Upload, FileSpreadsheet, AlertCircle, Database, Check, X, ChevronRight } from "lucide-react";
