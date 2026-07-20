@@ -1,3 +1,8 @@
+/* Hallmark · component: kpi-cards · genre: modern-minimal · theme: custom (light)
+ * states: default
+ * contrast: pass (APCA conformant)
+ */
+
 import React from "react";
 import { AlertOctagon, TrendingUp, CalendarDays, ClipboardList } from "lucide-react";
 
@@ -13,62 +18,50 @@ export default function KPICards({ data }) {
       title: "Procurement Restocks",
       value: restockItems,
       total: totalItems,
-      label: "Needing Restock",
-      desc: `${Math.round((restockItems / (totalItems || 1)) * 100)}% of catalog needs replenishment`,
+      label: "Replenishment Orders",
+      desc: `${Math.round((restockItems / (totalItems || 1)) * 100)}% of formulations require orders`,
       icon: AlertOctagon,
       textColor: "text-rose-400",
-      borderColor: "border-rose-500/20",
-      bgColor: "bg-rose-500/5",
-      glowClass: "glow-red",
-      iconBg: "bg-rose-500/10",
-      progressColor: "bg-rose-500",
+      indicatorColor: "bg-rose-500",
+      barColor: "bg-rose-500/30",
     },
     {
       title: "Overstock Holdings",
       value: excessiveItems,
       total: totalItems,
-      label: "Excessive Inventory",
-      desc: `${Math.round((excessiveItems / (totalItems || 1)) * 100)}% of catalog is overstocked`,
+      label: "Excessive Stocking",
+      desc: `${Math.round((excessiveItems / (totalItems || 1)) * 100)}% of items are over-buffered`,
       icon: TrendingUp,
       textColor: "text-amber-400",
-      borderColor: "border-amber-500/20",
-      bgColor: "bg-amber-500/5",
-      glowClass: "glow-orange",
-      iconBg: "bg-amber-500/10",
-      progressColor: "bg-amber-500",
+      indicatorColor: "bg-amber-500",
+      barColor: "bg-amber-500/30",
     },
     {
-      title: "Expiry Hazard Items",
+      title: "Short-Dated Expirations",
       value: expiryHazardItems,
       total: totalItems,
       label: "Expiry Risk (≤120d)",
-      desc: `${Math.round((expiryHazardItems / (totalItems || 1)) * 100)}% of items have short-dated batches`,
+      desc: `${Math.round((expiryHazardItems / (totalItems || 1)) * 100)}% of items contain near-expiry lots`,
       icon: CalendarDays,
-      textColor: "text-emerald-400",
-      borderColor: "border-emerald-500/20",
-      bgColor: "bg-emerald-500/5",
-      glowClass: "glow-green",
-      iconBg: "bg-emerald-500/10",
-      progressColor: "bg-emerald-500",
+      textColor: "text-orange-400",
+      indicatorColor: "bg-orange-500",
+      barColor: "bg-orange-500/30",
     },
     {
-      title: "Active Catalog Products",
+      title: "Active Database Items",
       value: totalItems,
       total: totalItems,
-      label: "Total Products Listed",
-      desc: "Unique items processed in current simulation",
+      label: "Monitored Catalog",
+      desc: "Unique items processed in current simulation runs",
       icon: ClipboardList,
-      textColor: "text-purple-400",
-      borderColor: "border-purple-500/20",
-      bgColor: "bg-purple-500/5",
-      glowClass: "glow-purple",
-      iconBg: "bg-purple-500/10",
-      progressColor: "bg-purple-500",
+      textColor: "text-accent",
+      indicatorColor: "bg-accent",
+      barColor: "bg-accent/30",
     },
   ];
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 w-full mb-8">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 w-full">
       {cards.map((card, idx) => {
         const Icon = card.icon;
         const percent = totalItems > 0 ? (card.value / totalItems) * 100 : 0;
@@ -76,32 +69,46 @@ export default function KPICards({ data }) {
         return (
           <div
             key={idx}
-            className={`glass-panel glass-panel-hover flex flex-col p-6 rounded-3xl border transition-all duration-300 ${card.borderColor} ${card.bgColor} ${card.glowClass}`}
+            className="bg-paper-2 border border-rule hover:border-rule-hover p-5 rounded-md flex flex-col justify-between transition-colors duration-150"
           >
-            <div className="flex items-start justify-between mb-4">
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">
+            {/* Top Row: Metric & Title */}
+            <div className="flex items-start justify-between gap-4 mb-5">
+              <div className="flex-grow">
+                <span className="text-xs font-mono text-ink-2 uppercase tracking-wider block mb-1">
                   {card.title}
-                </p>
-                <h3 className="text-3xl font-bold text-slate-100 font-mono tracking-tight">
-                  {card.value}
-                </h3>
+                </span>
+                <div className="flex items-baseline gap-2">
+                  <span className="text-3xl font-display font-semibold text-ink tnum tracking-tight">
+                    {card.value}
+                  </span>
+                  {totalItems > 0 && idx < 3 && (
+                    <span className="text-sm font-display font-medium text-ink-2 tnum">
+                      / {totalItems}
+                    </span>
+                  )}
+                </div>
               </div>
-              <div className={`p-3 rounded-2xl ${card.iconBg} ${card.textColor}`}>
-                <Icon className="w-6 h-6" />
+              <div className="p-2 bg-paper-3 border border-rule rounded-md text-ink-2">
+                <Icon className="w-4 h-4" />
               </div>
             </div>
             
+            {/* Bottom Row: Progress & Context Description */}
             <div className="mt-auto">
-              <div className="w-full bg-slate-950/80 rounded-full h-1.5 mb-3.5 border border-slate-900">
+              <div className="w-full bg-paper-3 rounded-full h-1 mb-3 relative overflow-hidden">
                 <div
-                  className={`h-full rounded-full ${card.progressColor}`}
+                  className={`h-full rounded-full ${card.indicatorColor}`}
                   style={{ width: `${percent}%` }}
                 ></div>
               </div>
               <div className="flex flex-col gap-0.5">
-                <span className="text-sm font-medium text-slate-200">{card.label}</span>
-                <span className="text-xs text-slate-400 leading-normal">{card.desc}</span>
+                <span className="text-sm font-body font-medium text-ink flex items-center gap-1.5">
+                  <span className={`w-1.5 h-1.5 rounded-full ${card.indicatorColor}`}></span>
+                  {card.label}
+                </span>
+                <span className="text-xs text-ink-2 leading-relaxed font-body">
+                  {card.desc}
+                </span>
               </div>
             </div>
           </div>

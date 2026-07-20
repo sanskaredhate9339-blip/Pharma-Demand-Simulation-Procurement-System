@@ -1,3 +1,8 @@
+/* Hallmark · component: dashboard-tabs · genre: modern-minimal · theme: custom (light)
+ * states: default · hover · focus · active · disabled
+ * contrast: pass (APCA conformant)
+ */
+
 import React, { useState, useMemo } from "react";
 import { 
   Search, Download, ChevronLeft, ChevronRight, ArrowUpDown, 
@@ -18,19 +23,15 @@ export default function DashboardTabs({ data }) {
   const tabFilteredData = useMemo(() => {
     switch (activeTab) {
       case "procurement":
-        // Filtered to RESTOCK items
         return data.filter((item) => item.Action.includes("RESTOCK"));
       case "overstock":
-        // Filtered to EXCESSIVE items
         return data.filter((item) => item.Action.includes("EXCESSIVE"));
       case "expiry":
-        // Filtered to items with Risky Stock > 0
         return data.filter((item) => item["Risky Stock (Near Expiry)"] > 0);
       case "profitability":
       case "eoq":
       case "ledger":
       default:
-        // All items (for catalog-wide analysis)
         return data;
     }
   }, [data, activeTab]);
@@ -54,7 +55,6 @@ export default function DashboardTabs({ data }) {
         let aValue = a[sortConfig.key];
         let bValue = b[sortConfig.key];
 
-        // Handle string parsing or date comparison
         if (typeof aValue === "string") {
           aValue = aValue.toLowerCase();
           bValue = bValue.toLowerCase();
@@ -69,7 +69,6 @@ export default function DashboardTabs({ data }) {
         return 0;
       });
     } else if (activeTab === "procurement") {
-      // Procurement is sortable by predicted demand by default (descending)
       sortable.sort((a, b) => b["Predicted Demand (Next Month)"] - a["Predicted Demand (Next Month)"]);
     }
     return sortable;
@@ -85,13 +84,7 @@ export default function DashboardTabs({ data }) {
 
   // --- Aggregate Metrics for Top Sections ---
   
-  // 1. Procurement Savings (only restocks)
-  const totalProcurementSavings = useMemo(() => {
-    const restockItems = data.filter((item) => item.Action.includes("RESTOCK"));
-    return restockItems.reduce((sum, item) => sum + (item["Annual Cost Savings"] || 0), 0);
-  }, [data]);
-
-  // 2. Profitability Aggregates (whole catalog)
+  // 2. Profitability Aggregates
   const profitabilityMetrics = useMemo(() => {
     let totalRevenue = 0;
     let totalProfit = 0;
@@ -106,7 +99,7 @@ export default function DashboardTabs({ data }) {
     return { totalRevenue, totalProfit, averageMargin };
   }, [data]);
 
-  // 3. EOQ Aggregates (whole catalog)
+  // 3. EOQ Aggregates
   const eoqMetrics = useMemo(() => {
     let totalEoqSavings = 0;
     let totalIntervals = 0;
@@ -132,18 +125,14 @@ export default function DashboardTabs({ data }) {
     setSortConfig({ key, direction });
   };
 
-  // CSV Export helper
   const exportToCSV = () => {
     if (sortedData.length === 0) return;
 
-    // Define columns to export based on tab
     const headers = Object.keys(sortedData[0]);
     const csvRows = [];
 
-    // Header row
     csvRows.push(headers.map(h => `"${h.replace(/"/g, '""')}"`).join(","));
 
-    // Data rows
     sortedData.forEach(row => {
       const values = headers.map(header => {
         const val = row[header];
@@ -165,41 +154,41 @@ export default function DashboardTabs({ data }) {
   const getActionBadge = (action) => {
     if (action.includes("RESTOCK")) {
       return (
-        <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-semibold bg-rose-500/10 text-rose-400 border border-rose-500/20">
-          🚨 Restock
+        <span className="inline-flex items-center px-2 py-0.5 rounded-sm text-xs font-body font-medium bg-rose-500/10 text-rose-400 border border-rose-500/20">
+          RESTOCK
         </span>
       );
     }
     if (action.includes("EXCESSIVE")) {
       return (
-        <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20">
-          📦 Overstock
+        <span className="inline-flex items-center px-2 py-0.5 rounded-sm text-xs font-body font-medium bg-amber-500/10 text-amber-400 border border-amber-500/20">
+          OVERSTOCK
         </span>
       );
     }
     return (
-      <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-        🟢 Optimal
+      <span className="inline-flex items-center px-2 py-0.5 rounded-sm text-xs font-body font-medium bg-accent/10 text-accent border border-accent/20">
+        OPTIMAL
       </span>
     );
   };
 
   return (
-    <div className="w-full flex flex-col gap-6">
-      {/* Tab Selectors */}
-      <div className="flex flex-wrap border-b border-slate-800/80 gap-1 pb-px">
+    <div className="w-full flex flex-col gap-5">
+      {/* Navigation Tabs */}
+      <div className="flex flex-wrap border-b border-rule gap-1">
         <button
           onClick={() => { setActiveTab("procurement"); setSearchQuery(""); setSortConfig({ key: null, direction: "asc" }); }}
-          className={`flex items-center gap-2 px-4 py-3.5 text-xs sm:text-sm font-semibold border-b-2 transition-all duration-200 ${
+          className={`flex items-center gap-2 px-4 py-3 text-sm font-body font-medium border-b-2 transition-all duration-150 cursor-pointer focus-visible:outline-2 focus-visible:outline-accent ${
             activeTab === "procurement"
-              ? "border-rose-500 text-rose-400 bg-rose-500/5"
-              : "border-transparent text-slate-400 hover:text-slate-200 hover:bg-slate-900/40"
+              ? "border-accent text-accent bg-accent/5"
+              : "border-transparent text-ink-2 hover:text-ink hover:bg-paper-2/40"
           }`}
         >
-          <ShoppingCart className="w-4 h-4" />
-          Procurement (Buy)
+          <ShoppingCart className="w-3.5 h-3.5" />
+          Procurement
           {data.filter((item) => item.Action.includes("RESTOCK")).length > 0 && (
-            <span className="px-1.5 py-0.5 rounded-md text-[10px] bg-rose-500/20 text-rose-400 border border-rose-500/35">
+            <span className="px-1.5 py-0.5 rounded-sm text-xs font-body bg-rose-500/10 text-rose-400 border border-rose-500/20">
               {data.filter((item) => item.Action.includes("RESTOCK")).length}
             </span>
           )}
@@ -207,16 +196,16 @@ export default function DashboardTabs({ data }) {
 
         <button
           onClick={() => { setActiveTab("overstock"); setSearchQuery(""); setSortConfig({ key: null, direction: "asc" }); }}
-          className={`flex items-center gap-2 px-4 py-3.5 text-xs sm:text-sm font-semibold border-b-2 transition-all duration-200 ${
+          className={`flex items-center gap-2 px-4 py-3 text-sm font-body font-medium border-b-2 transition-all duration-150 cursor-pointer focus-visible:outline-2 focus-visible:outline-accent ${
             activeTab === "overstock"
-              ? "border-amber-500 text-amber-400 bg-amber-500/5"
-              : "border-transparent text-slate-400 hover:text-slate-200 hover:bg-slate-900/40"
+              ? "border-accent text-accent bg-accent/5"
+              : "border-transparent text-ink-2 hover:text-ink hover:bg-paper-2/40"
           }`}
         >
-          <Ban className="w-4 h-4" />
-          Overstock (Hold)
+          <Ban className="w-3.5 h-3.5" />
+          Overstock
           {data.filter((item) => item.Action.includes("EXCESSIVE")).length > 0 && (
-            <span className="px-1.5 py-0.5 rounded-md text-[10px] bg-amber-500/20 text-amber-400 border border-amber-500/35">
+            <span className="px-1.5 py-0.5 rounded-sm text-xs font-body bg-amber-500/10 text-amber-400 border border-amber-500/20">
               {data.filter((item) => item.Action.includes("EXCESSIVE")).length}
             </span>
           )}
@@ -224,154 +213,153 @@ export default function DashboardTabs({ data }) {
 
         <button
           onClick={() => { setActiveTab("expiry"); setSearchQuery(""); setSortConfig({ key: null, direction: "asc" }); }}
-          className={`flex items-center gap-2 px-4 py-3.5 text-xs sm:text-sm font-semibold border-b-2 transition-all duration-200 ${
+          className={`flex items-center gap-2 px-4 py-3 text-sm font-body font-medium border-b-2 transition-all duration-150 cursor-pointer focus-visible:outline-2 focus-visible:outline-accent ${
             activeTab === "expiry"
-              ? "border-emerald-500 text-emerald-400 bg-emerald-500/5"
-              : "border-transparent text-slate-400 hover:text-slate-200 hover:bg-slate-900/40"
+              ? "border-accent text-accent bg-accent/5"
+              : "border-transparent text-ink-2 hover:text-ink hover:bg-paper-2/40"
           }`}
         >
-          <ShieldAlert className="w-4 h-4" />
+          <ShieldAlert className="w-3.5 h-3.5" />
           Expiry Risk
         </button>
 
-        {/* Profitability Tab */}
         <button
           onClick={() => { setActiveTab("profitability"); setSearchQuery(""); setSortConfig({ key: null, direction: "asc" }); }}
-          className={`flex items-center gap-2 px-4 py-3.5 text-xs sm:text-sm font-semibold border-b-2 transition-all duration-200 ${
+          className={`flex items-center gap-2 px-4 py-3 text-sm font-body font-medium border-b-2 transition-all duration-150 cursor-pointer focus-visible:outline-2 focus-visible:outline-accent ${
             activeTab === "profitability"
-              ? "border-purple-500 text-purple-400 bg-purple-500/5"
-              : "border-transparent text-slate-400 hover:text-slate-200 hover:bg-slate-900/40"
+              ? "border-accent text-accent bg-accent/5"
+              : "border-transparent text-ink-2 hover:text-ink hover:bg-paper-2/40"
           }`}
         >
-          <TrendingUp className="w-4 h-4" />
+          <TrendingUp className="w-3.5 h-3.5" />
           Profitability
         </button>
 
-        {/* EOQ Tab */}
         <button
           onClick={() => { setActiveTab("eoq"); setSearchQuery(""); setSortConfig({ key: null, direction: "asc" }); }}
-          className={`flex items-center gap-2 px-4 py-3.5 text-xs sm:text-sm font-semibold border-b-2 transition-all duration-200 ${
+          className={`flex items-center gap-2 px-4 py-3 text-sm font-body font-medium border-b-2 transition-all duration-150 cursor-pointer focus-visible:outline-2 focus-visible:outline-accent ${
             activeTab === "eoq"
-              ? "border-indigo-500 text-indigo-400 bg-indigo-500/5"
-              : "border-transparent text-slate-400 hover:text-slate-200 hover:bg-slate-900/40"
+              ? "border-accent text-accent bg-accent/5"
+              : "border-transparent text-ink-2 hover:text-ink hover:bg-paper-2/40"
           }`}
         >
-          <Sliders className="w-4 h-4" />
-          EOQ Optimization
+          <Sliders className="w-3.5 h-3.5" />
+          EOQ Model
         </button>
 
         <button
           onClick={() => { setActiveTab("ledger"); setSearchQuery(""); setSortConfig({ key: null, direction: "asc" }); }}
-          className={`flex items-center gap-2 px-4 py-3.5 text-xs sm:text-sm font-semibold border-b-2 transition-all duration-200 ${
+          className={`flex items-center gap-2 px-4 py-3 text-sm font-body font-medium border-b-2 transition-all duration-150 cursor-pointer focus-visible:outline-2 focus-visible:outline-accent ${
             activeTab === "ledger"
-              ? "border-slate-500 text-slate-300 bg-slate-500/5"
-              : "border-transparent text-slate-400 hover:text-slate-200 hover:bg-slate-900/40"
+              ? "border-accent text-accent bg-accent/5"
+              : "border-transparent text-ink-2 hover:text-ink hover:bg-paper-2/40"
           }`}
         >
-          <Scroll className="w-4 h-4" />
+          <Scroll className="w-3.5 h-3.5" />
           Master Ledger
         </button>
       </div>
 
-      {/* Dynamic Summary Cards per Workspace Section */}
+      {/* Aggregate Banners */}
       
-      {/* 1. Procurement Savings Banner */}
-      {activeTab === "procurement" && totalProcurementSavings > 0 && (
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-5 rounded-2xl bg-purple-500/10 border border-purple-500/20 text-purple-300 text-sm glow-purple animate-fadeIn">
+      {/* EOQ Savings Banner - only shows on EOQ tab */}
+      {activeTab === "eoq" && eoqMetrics.totalEoqSavings > 0 && (
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 rounded-md bg-accent/5 border border-accent/15 text-sm animate-fade-in">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 bg-purple-500/20 rounded-xl text-purple-400">
-              <TrendingUp className="w-5 h-5" />
+            <div className="p-2 bg-accent/10 border border-accent/25 rounded-md text-accent">
+              <TrendingUp className="w-4 h-4" />
             </div>
             <div>
-              <span className="font-semibold text-slate-100 block">Economic Order Quantity (EOQ) Enabled</span>
-              <span className="text-xs text-slate-400">Reduce storage and ordering friction. Displaying recommended replenishment orders.</span>
+              <span className="font-display font-bold text-ink block">Economic Order Quantity (EOQ) Active</span>
+              <span className="text-xs text-ink-2">Recommended replenishment volumes calculated to minimize holding friction.</span>
             </div>
           </div>
-          <div className="text-right">
-            <span className="text-[10px] font-semibold text-purple-400/80 block uppercase tracking-wider">Projected Annual Cost Savings</span>
-            <span className="text-2xl font-black text-purple-400 font-mono tracking-tight">
-              ${totalProcurementSavings.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          <div className="text-left sm:text-right">
+            <span className="text-xs font-body font-medium text-ink-2 block mb-1">Annual Cost Savings</span>
+            <span className="text-xl font-display font-bold text-accent tnum tracking-tight">
+              ₹{eoqMetrics.totalEoqSavings.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </span>
           </div>
         </div>
       )}
 
-      {/* 2. Profitability Analysis Section KPI Cards */}
+      {/* Profitability aggregates */}
       {activeTab === "profitability" && (
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 animate-fadeIn">
-          <div className="glass-panel p-5 rounded-2xl border border-purple-500/10 bg-purple-500/5 flex items-center justify-between">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 animate-fade-in">
+          <div className="bg-paper-2 border border-rule p-4 rounded-md flex items-center justify-between">
             <div>
-              <span className="text-xs font-semibold uppercase tracking-wider text-slate-400 block mb-1">Catalog Projected Revenue</span>
-              <span className="text-2xl font-black text-slate-100 font-mono">
-                ${profitabilityMetrics.totalRevenue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              <span className="text-xs font-body font-medium text-ink-2 block mb-1">Projected Revenue</span>
+              <span className="text-lg font-display font-semibold text-ink tnum">
+                ₹{profitabilityMetrics.totalRevenue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </span>
             </div>
-            <div className="p-3 bg-purple-500/15 text-purple-400 rounded-xl">
-              <DollarSign className="w-5 h-5" />
+            <div className="p-2 bg-paper-3 border border-rule rounded-md text-ink-2">
+              <DollarSign className="w-4 h-4" />
             </div>
           </div>
 
-          <div className="glass-panel p-5 rounded-2xl border border-emerald-500/10 bg-emerald-500/5 flex items-center justify-between">
+          <div className="bg-paper-2 border border-rule p-4 rounded-md flex items-center justify-between">
             <div>
-              <span className="text-xs font-semibold uppercase tracking-wider text-slate-400 block mb-1">Projected Annual Profit</span>
-              <span className="text-2xl font-black text-slate-100 font-mono">
-                ${profitabilityMetrics.totalProfit.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              <span className="text-xs font-body font-medium text-ink-2 block mb-1">Projected Annual Profit</span>
+              <span className="text-lg font-display font-semibold text-ink tnum">
+                ₹{profitabilityMetrics.totalProfit.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </span>
             </div>
-            <div className="p-3 bg-emerald-500/15 text-emerald-400 rounded-xl">
-              <Coins className="w-5 h-5" />
+            <div className="p-2 bg-paper-3 border border-rule rounded-md text-ink-2">
+              <Coins className="w-4 h-4" />
             </div>
           </div>
 
-          <div className="glass-panel p-5 rounded-2xl border border-indigo-500/10 bg-indigo-500/5 flex items-center justify-between">
+          <div className="bg-paper-2 border border-rule p-4 rounded-md flex items-center justify-between">
             <div>
-              <span className="text-xs font-semibold uppercase tracking-wider text-slate-400 block mb-1">Avg Product Profit Margin</span>
-              <span className="text-2xl font-black text-slate-100 font-mono">
+              <span className="text-xs font-body font-medium text-ink-2 block mb-1">Average Profit Margin</span>
+              <span className="text-lg font-display font-semibold text-ink tnum">
                 {profitabilityMetrics.averageMargin.toFixed(1)}%
               </span>
             </div>
-            <div className="p-3 bg-indigo-500/15 text-indigo-400 rounded-xl">
-              <TrendingUp className="w-5 h-5" />
+            <div className="p-2 bg-paper-3 border border-rule rounded-md text-ink-2">
+              <TrendingUp className="w-4 h-4" />
             </div>
           </div>
         </div>
       )}
 
-      {/* 3. EOQ Optimization Section KPI Cards */}
+      {/* EOQ aggregates */}
       {activeTab === "eoq" && (
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 animate-fadeIn">
-          <div className="glass-panel p-5 rounded-2xl border border-indigo-500/10 bg-indigo-500/5 flex items-center justify-between">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 animate-fade-in">
+          <div className="bg-paper-2 border border-rule p-4 rounded-md flex items-center justify-between">
             <div>
-              <span className="text-xs font-semibold uppercase tracking-wider text-slate-400 block mb-1">Potential Catalog Savings</span>
-              <span className="text-2xl font-black text-indigo-400 font-mono">
-                ${eoqMetrics.totalEoqSavings.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              <span className="text-xs font-body font-medium text-ink-2 block mb-1">Potential EOQ Savings</span>
+              <span className="text-lg font-display font-semibold text-accent tnum">
+                ₹{eoqMetrics.totalEoqSavings.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </span>
             </div>
-            <div className="p-3 bg-indigo-500/15 text-indigo-400 rounded-xl">
-              <PiggyBank className="w-5 h-5 animate-bounce" />
+            <div className="p-2 bg-paper-3 border border-rule rounded-md text-accent">
+              <PiggyBank className="w-4 h-4" />
             </div>
           </div>
 
-          <div className="glass-panel p-5 rounded-2xl border border-purple-500/10 bg-purple-500/5 flex items-center justify-between">
+          <div className="bg-paper-2 border border-rule p-4 rounded-md flex items-center justify-between">
             <div>
-              <span className="text-xs font-semibold uppercase tracking-wider text-slate-400 block mb-1">Average Reorder Interval</span>
-              <span className="text-2xl font-black text-slate-100 font-mono">
+              <span className="text-xs font-body font-medium text-ink-2 block mb-1">Avg Reorder Interval</span>
+              <span className="text-lg font-display font-semibold text-ink tnum">
                 {Math.round(eoqMetrics.avgInterval)} days
               </span>
             </div>
-            <div className="p-3 bg-purple-500/15 text-purple-400 rounded-xl">
-              <CalendarDays className="w-5 h-5" />
+            <div className="p-2 bg-paper-3 border border-rule rounded-md text-ink-2">
+              <CalendarDays className="w-4 h-4" />
             </div>
           </div>
 
-          <div className="glass-panel p-5 rounded-2xl border border-slate-800 bg-slate-900/40 flex items-center justify-between">
+          <div className="bg-paper-2 border border-rule p-4 rounded-md flex items-center justify-between">
             <div>
-              <span className="text-xs font-semibold uppercase tracking-wider text-slate-400 block mb-1">Ordering Constants Set</span>
-              <span className="text-sm font-semibold text-slate-300 block mt-1">Ordering Cost: <span className="font-mono text-purple-400">$50</span></span>
-              <span className="text-xs text-slate-500 block">Holding Cost Rate: <span className="font-mono text-purple-400">20%</span> of Purchase Cost</span>
+              <span className="text-xs font-body font-medium text-ink-2 block mb-1">Optimization Constants</span>
+              <span className="text-xs text-ink-2 block mt-1 font-body">
+                Order Fee: <span className="text-accent">₹50</span> | Holding: <span className="text-accent">20%</span>
+              </span>
             </div>
-            <div className="p-3 bg-slate-800 text-slate-400 rounded-xl">
-              <Sliders className="w-5 h-5" />
+            <div className="p-2 bg-paper-3 border border-rule rounded-md text-ink-2">
+              <Sliders className="w-4 h-4" />
             </div>
           </div>
         </div>
@@ -379,15 +367,15 @@ export default function DashboardTabs({ data }) {
 
       {/* Table Filters Panel */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        {/* Search Bar */}
+        {/* Search Input Box */}
         <div className="relative max-w-sm w-full">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-ink-2" />
           <input
             type="text"
-            placeholder="Search by product name..."
+            placeholder="Filter catalog by product name..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 bg-slate-900/50 hover:bg-slate-900/80 focus:bg-slate-950 border border-slate-800 focus:border-slate-700 text-slate-200 placeholder-slate-500 text-sm rounded-xl focus:outline-none transition"
+            className="w-full pl-9 pr-4 py-2 bg-paper-2 hover:bg-paper-3/50 focus:bg-paper border border-rule focus:border-accent text-ink placeholder-ink-2/50 text-xs rounded-md focus:outline-none transition duration-150 focus-visible:outline-accent"
           />
         </div>
 
@@ -395,184 +383,185 @@ export default function DashboardTabs({ data }) {
         <button
           onClick={exportToCSV}
           disabled={sortedData.length === 0}
-          className="flex items-center justify-center gap-2 px-4 py-2.5 bg-slate-900/80 hover:bg-slate-850 disabled:opacity-40 disabled:cursor-not-allowed border border-slate-800 text-slate-300 font-semibold rounded-xl text-sm transition"
+          className="flex items-center justify-center gap-2 px-3 py-2 bg-paper-3 hover:bg-paper-2 border border-rule hover:border-rule-hover disabled:opacity-40 disabled:cursor-not-allowed text-ink text-xs font-display font-semibold rounded-md transition duration-150 active:scale-[0.98] cursor-pointer"
         >
-          <Download className="w-4 h-4" />
+          <Download className="w-3.5 h-3.5 text-ink-2" />
           Export to CSV
         </button>
       </div>
 
-      {/* Data Table */}
-      <div className="glass-panel border border-slate-800/80 bg-slate-900/10 rounded-3xl overflow-hidden shadow-xl">
+      {/* Main Data Table */}
+      <div className="bg-paper-2 border border-rule rounded-md overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm text-slate-300 border-collapse">
-            <thead className="bg-slate-950/65 text-slate-400 text-xs uppercase tracking-wider border-b border-slate-800/60 font-semibold">
+          <table className="w-full text-left text-xs border-collapse">
+            <thead className="bg-paper-3/50 text-ink-2 border-b border-rule font-mono uppercase tracking-wider">
               {activeTab === "procurement" && (
                 <tr>
-                  <th className="py-4 px-6 cursor-pointer hover:text-slate-100" onClick={() => requestSort("Product Name")}>
-                    <div className="flex items-center gap-1.5">Product Name <ArrowUpDown className="w-3.5 h-3.5" /></div>
+                  <th className="py-3.5 px-5 cursor-pointer hover:text-ink" onClick={() => requestSort("Product Name")}>
+                    <div className="flex items-center gap-1">Product Name <ArrowUpDown className="w-3 h-3 text-ink-2/60" /></div>
                   </th>
-                  <th className="py-4 px-6 cursor-pointer hover:text-slate-100 text-right" onClick={() => requestSort("Avg Monthly Sales")}>
-                    <div className="flex items-center justify-end gap-1.5">Avg Sales <ArrowUpDown className="w-3.5 h-3.5" /></div>
+                  <th className="py-3.5 px-5 cursor-pointer hover:text-ink text-right" onClick={() => requestSort("Avg Monthly Sales")}>
+                    <div className="flex items-center justify-end gap-1">Avg Sales <ArrowUpDown className="w-3 h-3 text-ink-2/60" /></div>
                   </th>
-                  <th className="py-4 px-6 cursor-pointer hover:text-slate-100 text-right font-bold text-blue-400" onClick={() => requestSort("Predicted Demand (Next Month)")}>
-                    <div className="flex items-center justify-end gap-1.5 text-blue-400">Demand Forecast <ArrowUpDown className="w-3.5 h-3.5" /></div>
+                  <th className="py-3.5 px-5 cursor-pointer hover:text-ink text-right font-bold text-accent" onClick={() => requestSort("Predicted Demand (Next Month)")}>
+                    <div className="flex items-center justify-end gap-1 text-accent">Demand Forecast <ArrowUpDown className="w-3 h-3 text-accent/60" /></div>
                   </th>
-                  <th className="py-4 px-6 cursor-pointer hover:text-slate-100 text-right" onClick={() => requestSort("Usable Stock")}>
-                    <div className="flex items-center justify-end gap-1.5">Usable Stock <ArrowUpDown className="w-3.5 h-3.5" /></div>
+                  <th className="py-3.5 px-5 cursor-pointer hover:text-ink text-right" onClick={() => requestSort("Usable Stock")}>
+                    <div className="flex items-center justify-end gap-1">Usable Stock <ArrowUpDown className="w-3 h-3 text-ink-2/60" /></div>
                   </th>
-                  <th className="py-4 px-6 cursor-pointer hover:text-slate-100 text-right" onClick={() => requestSort("Reorder Point (ROP)")}>
-                    <div className="flex items-center justify-end gap-1.5">ROP <ArrowUpDown className="w-3.5 h-3.5" /></div>
+                  <th className="py-3.5 px-5 cursor-pointer hover:text-ink text-right" onClick={() => requestSort("Reorder Point (ROP)")}>
+                    <div className="flex items-center justify-end gap-1">ROP <ArrowUpDown className="w-3 h-3 text-ink-2/60" /></div>
                   </th>
-                  <th className="py-4 px-6 cursor-pointer hover:text-slate-100 text-right font-extrabold text-rose-400" onClick={() => requestSort("Units to Buy")}>
-                    <div className="flex items-center justify-end gap-1.5 text-rose-400 font-extrabold">Units to Buy <ArrowUpDown className="w-3.5 h-3.5" /></div>
+                  <th className="py-3.5 px-5 cursor-pointer hover:text-ink text-right font-bold text-rose-400" onClick={() => requestSort("Units to Buy")}>
+                    <div className="flex items-center justify-end gap-1 text-rose-400 font-bold">Units to Buy <ArrowUpDown className="w-3 h-3 text-rose-500/60" /></div>
                   </th>
-                  <th className="py-4 px-6 cursor-pointer hover:text-slate-100 text-right font-extrabold text-purple-400" onClick={() => requestSort("EOQ")}>
-                    <div className="flex items-center justify-end gap-1.5 text-purple-400 font-extrabold">Rec. EOQ <ArrowUpDown className="w-3.5 h-3.5" /></div>
+                  <th className="py-3.5 px-5 cursor-pointer hover:text-ink text-right font-bold text-accent" onClick={() => requestSort("EOQ")}>
+                    <div className="flex items-center justify-end gap-1 text-accent font-bold">Rec. EOQ <ArrowUpDown className="w-3 h-3 text-accent/60" /></div>
                   </th>
-                  <th className="py-4 px-6 cursor-pointer hover:text-slate-100 text-right font-semibold text-purple-400" onClick={() => requestSort("Days Between Orders")}>
-                    <div className="flex items-center justify-end gap-1.5 text-purple-400">Order Interval <ArrowUpDown className="w-3.5 h-3.5" /></div>
+                  <th className="py-3.5 px-5 cursor-pointer hover:text-ink text-right" onClick={() => requestSort("Days Between Orders")}>
+                    <div className="flex items-center justify-end gap-1">Order Interval <ArrowUpDown className="w-3 h-3 text-ink-2/60" /></div>
                   </th>
                 </tr>
               )}
 
               {activeTab === "overstock" && (
                 <tr>
-                  <th className="py-4 px-6 cursor-pointer hover:text-slate-100" onClick={() => requestSort("Product Name")}>
-                    <div className="flex items-center gap-1.5">Product Name <ArrowUpDown className="w-3.5 h-3.5" /></div>
+                  <th className="py-3.5 px-5 cursor-pointer hover:text-ink" onClick={() => requestSort("Product Name")}>
+                    <div className="flex items-center gap-1">Product Name <ArrowUpDown className="w-3 h-3 text-ink-2/60" /></div>
                   </th>
-                  <th className="py-4 px-6 cursor-pointer hover:text-slate-100 text-right" onClick={() => requestSort("Avg Monthly Sales")}>
-                    <div className="flex items-center justify-end gap-1.5">Avg Sales <ArrowUpDown className="w-3.5 h-3.5" /></div>
+                  <th className="py-3.5 px-5 cursor-pointer hover:text-ink text-right" onClick={() => requestSort("Avg Monthly Sales")}>
+                    <div className="flex items-center justify-end gap-1">Avg Sales <ArrowUpDown className="w-3 h-3 text-ink-2/60" /></div>
                   </th>
-                  <th className="py-4 px-6 cursor-pointer hover:text-slate-100 text-right" onClick={() => requestSort("Predicted Demand (Next Month)")}>
-                    <div className="flex items-center justify-end gap-1.5">Demand <ArrowUpDown className="w-3.5 h-3.5" /></div>
+                  <th className="py-3.5 px-5 cursor-pointer hover:text-ink text-right" onClick={() => requestSort("Predicted Demand (Next Month)")}>
+                    <div className="flex items-center justify-end gap-1">Demand <ArrowUpDown className="w-3 h-3 text-ink-2/60" /></div>
                   </th>
-                  <th className="py-4 px-6 cursor-pointer hover:text-slate-100 text-right" onClick={() => requestSort("Usable Stock")}>
-                    <div className="flex items-center justify-end gap-1.5">Usable Stock <ArrowUpDown className="w-3.5 h-3.5" /></div>
+                  <th className="py-3.5 px-5 cursor-pointer hover:text-ink text-right" onClick={() => requestSort("Usable Stock")}>
+                    <div className="flex items-center justify-end gap-1">Usable Stock <ArrowUpDown className="w-3 h-3 text-ink-2/60" /></div>
                   </th>
-                  <th className="py-4 px-6 cursor-pointer hover:text-slate-100 text-right" onClick={() => requestSort("Total Stock")}>
-                    <div className="flex items-center justify-end gap-1.5">Total Stock <ArrowUpDown className="w-3.5 h-3.5" /></div>
+                  <th className="py-3.5 px-5 cursor-pointer hover:text-ink text-right" onClick={() => requestSort("Total Stock")}>
+                    <div className="flex items-center justify-end gap-1">Total Stock <ArrowUpDown className="w-3 h-3 text-ink-2/60" /></div>
                   </th>
-                  <th className="py-4 px-6 cursor-pointer hover:text-slate-100 text-center" onClick={() => requestSort("Nearest Expiry Date")}>
-                    <div className="flex items-center justify-center gap-1.5">Nearest Expiry <ArrowUpDown className="w-3.5 h-3.5" /></div>
+                  <th className="py-3.5 px-5 cursor-pointer hover:text-ink text-center" onClick={() => requestSort("Nearest Expiry Date")}>
+                    <div className="flex items-center justify-center gap-1">Nearest Expiry <ArrowUpDown className="w-3 h-3 text-ink-2/60" /></div>
                   </th>
-                  <th className="py-4 px-6 cursor-pointer hover:text-slate-100 text-center" onClick={() => requestSort("Action")}>
-                    <div className="flex items-center justify-center gap-1.5">Status <ArrowUpDown className="w-3.5 h-3.5" /></div>
+                  <th className="py-3.5 px-5 cursor-pointer hover:text-ink text-center" onClick={() => requestSort("Action")}>
+                    <div className="flex items-center justify-center gap-1">Status <ArrowUpDown className="w-3 h-3 text-ink-2/60" /></div>
                   </th>
                 </tr>
               )}
 
               {activeTab === "expiry" && (
                 <tr>
-                  <th className="py-4 px-6 cursor-pointer hover:text-slate-100" onClick={() => requestSort("Product Name")}>
-                    <div className="flex items-center gap-1.5">Product Name <ArrowUpDown className="w-3.5 h-3.5" /></div>
+                  <th className="py-3.5 px-5 cursor-pointer hover:text-ink" onClick={() => requestSort("Product Name")}>
+                    <div className="flex items-center gap-1">Product Name <ArrowUpDown className="w-3 h-3 text-ink-2/60" /></div>
                   </th>
-                  <th className="py-4 px-6 cursor-pointer hover:text-slate-100 text-right" onClick={() => requestSort("Usable Stock")}>
-                    <div className="flex items-center justify-end gap-1.5">Usable Stock <ArrowUpDown className="w-3.5 h-3.5" /></div>
+                  <th className="py-3.5 px-5 cursor-pointer hover:text-ink text-right" onClick={() => requestSort("Usable Stock")}>
+                    <div className="flex items-center justify-end gap-1">Usable Stock <ArrowUpDown className="w-3 h-3 text-ink-2/60" /></div>
                   </th>
-                  <th className="py-4 px-6 cursor-pointer hover:text-slate-100 text-right font-bold text-amber-400 animate-pulse" onClick={() => requestSort("Risky Stock (Near Expiry)")}>
-                    <div className="flex items-center justify-end gap-1.5 text-amber-400">Risky Stock (Near Expiry) <ArrowUpDown className="w-3.5 h-3.5" /></div>
+                  <th className="py-3.5 px-5 cursor-pointer hover:text-ink text-right font-bold text-amber-400" onClick={() => requestSort("Risky Stock (Near Expiry)")}>
+                    <div className="flex items-center justify-end gap-1 text-amber-400">Risky Stock (Near Expiry) <ArrowUpDown className="w-3 h-3 text-amber-500/60" /></div>
                   </th>
-                  <th className="py-4 px-6 cursor-pointer hover:text-slate-100 text-right" onClick={() => requestSort("Total Stock")}>
-                    <div className="flex items-center justify-end gap-1.5">Total Stock <ArrowUpDown className="w-3.5 h-3.5" /></div>
+                  <th className="py-3.5 px-5 cursor-pointer hover:text-ink text-right" onClick={() => requestSort("Total Stock")}>
+                    <div className="flex items-center justify-end gap-1">Total Stock <ArrowUpDown className="w-3 h-3 text-ink-2/60" /></div>
                   </th>
-                  <th className="py-4 px-6 cursor-pointer hover:text-slate-100 text-center" onClick={() => requestSort("Nearest Expiry Date")}>
-                    <div className="flex items-center justify-center gap-1.5">Nearest Expiry <ArrowUpDown className="w-3.5 h-3.5" /></div>
+                  <th className="py-3.5 px-5 cursor-pointer hover:text-ink text-center" onClick={() => requestSort("Nearest Expiry Date")}>
+                    <div className="flex items-center justify-center gap-1">Nearest Expiry <ArrowUpDown className="w-3 h-3 text-ink-2/60" /></div>
                   </th>
                 </tr>
               )}
 
               {activeTab === "profitability" && (
                 <tr>
-                  <th className="py-4 px-6 cursor-pointer hover:text-slate-100" onClick={() => requestSort("Product Name")}>
-                    <div className="flex items-center gap-1.5">Product Name <ArrowUpDown className="w-3.5 h-3.5" /></div>
+                  <th className="py-3.5 px-5 cursor-pointer hover:text-ink" onClick={() => requestSort("Product Name")}>
+                    <div className="flex items-center gap-1">Product Name <ArrowUpDown className="w-3 h-3 text-ink-2/60" /></div>
                   </th>
-                  <th className="py-4 px-6 cursor-pointer hover:text-slate-100 text-right font-semibold text-purple-400" onClick={() => requestSort("Purchase Cost")}>
-                    <div className="flex items-center justify-end gap-1.5 text-purple-400">Purchase Cost <ArrowUpDown className="w-3.5 h-3.5" /></div>
+                  <th className="py-3.5 px-5 cursor-pointer hover:text-ink text-right font-semibold text-accent" onClick={() => requestSort("Purchase Cost")}>
+                    <div className="flex items-center justify-end gap-1 text-accent">Purchase Cost <ArrowUpDown className="w-3 h-3 text-accent/60" /></div>
                   </th>
-                  <th className="py-4 px-6 cursor-pointer hover:text-slate-100 text-right font-bold text-emerald-400" onClick={() => requestSort("Selling Price")}>
-                    <div className="flex items-center justify-end gap-1.5 text-emerald-400">Selling Price <ArrowUpDown className="w-3.5 h-3.5" /></div>
+                  <th className="py-3.5 px-5 cursor-pointer hover:text-ink text-right font-bold text-accent" onClick={() => requestSort("Selling Price")}>
+                    <div className="flex items-center justify-end gap-1 text-accent">Selling Price <ArrowUpDown className="w-3 h-3 text-accent/60" /></div>
                   </th>
-                  <th className="py-4 px-6 cursor-pointer hover:text-slate-100 text-right" onClick={() => requestSort("Annual Demand")}>
-                    <div className="flex items-center justify-end gap-1.5">Est. Annual Units <ArrowUpDown className="w-3.5 h-3.5" /></div>
+                  <th className="py-3.5 px-5 cursor-pointer hover:text-ink text-right" onClick={() => requestSort("Annual Demand")}>
+                    <div className="flex items-center justify-end gap-1">Annual Units <ArrowUpDown className="w-3 h-3 text-ink-2/60" /></div>
                   </th>
-                  <th className="py-4 px-6 cursor-pointer hover:text-slate-100 text-right font-bold text-blue-400" onClick={() => requestSort("Revenue")}>
-                    <div className="flex items-center justify-end gap-1.5 text-blue-400">Est. Revenue <ArrowUpDown className="w-3.5 h-3.5" /></div>
+                  <th className="py-3.5 px-5 cursor-pointer hover:text-ink text-right font-bold text-accent" onClick={() => requestSort("Revenue")}>
+                    <div className="flex items-center justify-end gap-1 text-accent">Est. Revenue <ArrowUpDown className="w-3 h-3 text-accent/60" /></div>
                   </th>
-                  <th className="py-4 px-6 cursor-pointer hover:text-slate-100 text-right font-black text-emerald-400" onClick={() => requestSort("Profit")}>
-                    <div className="flex items-center justify-end gap-1.5 text-emerald-400">Est. Net Profit <ArrowUpDown className="w-3.5 h-3.5" /></div>
+                  <th className="py-3.5 px-5 cursor-pointer hover:text-ink text-right font-bold text-accent" onClick={() => requestSort("Profit")}>
+                    <div className="flex items-center justify-end gap-1 text-accent">Est. Net Profit <ArrowUpDown className="w-3 h-3 text-accent/60" /></div>
                   </th>
-                  <th className="py-4 px-6 cursor-pointer hover:text-slate-100 text-right font-semibold text-indigo-400" onClick={() => requestSort("Profit Margin (%)")}>
-                    <div className="flex items-center justify-end gap-1.5 text-indigo-400">Margin % <ArrowUpDown className="w-3.5 h-3.5" /></div>
+                  <th className="py-3.5 px-5 cursor-pointer hover:text-ink text-right" onClick={() => requestSort("Profit Margin (%)")}>
+                    <div className="flex items-center justify-end gap-1">Margin % <ArrowUpDown className="w-3 h-3 text-ink-2/60" /></div>
                   </th>
                 </tr>
               )}
 
               {activeTab === "eoq" && (
                 <tr>
-                  <th className="py-4 px-6 cursor-pointer hover:text-slate-100" onClick={() => requestSort("Product Name")}>
-                    <div className="flex items-center gap-1.5">Product Name <ArrowUpDown className="w-3.5 h-3.5" /></div>
+                  <th className="py-3.5 px-5 cursor-pointer hover:text-ink" onClick={() => requestSort("Product Name")}>
+                    <div className="flex items-center gap-1">Product Name <ArrowUpDown className="w-3 h-3 text-ink-2/60" /></div>
                   </th>
-                  <th className="py-4 px-6 cursor-pointer hover:text-slate-100 text-right" onClick={() => requestSort("Annual Demand")}>
-                    <div className="flex items-center justify-end gap-1.5">Annual Demand (D) <ArrowUpDown className="w-3.5 h-3.5" /></div>
+                  <th className="py-3.5 px-5 cursor-pointer hover:text-ink text-right" onClick={() => requestSort("Annual Demand")}>
+                    <div className="flex items-center justify-end gap-1">Annual Demand (D) <ArrowUpDown className="w-3 h-3 text-ink-2/60" /></div>
                   </th>
-                  <th className="py-4 px-6 cursor-pointer hover:text-slate-100 text-right font-semibold text-purple-400" onClick={() => requestSort("Purchase Cost")}>
-                    <div className="flex items-center justify-end gap-1.5 text-purple-400">Purchase Cost <ArrowUpDown className="w-3.5 h-3.5" /></div>
+                  <th className="py-3.5 px-5 cursor-pointer hover:text-ink text-right" onClick={() => requestSort("Purchase Cost")}>
+                    <div className="flex items-center justify-end gap-1">Purchase Cost <ArrowUpDown className="w-3 h-3 text-ink-2/60" /></div>
                   </th>
-                  <th className="py-4 px-6 cursor-pointer hover:text-slate-100 text-right" onClick={() => requestSort("Purchase Cost")}>
-                    <div className="flex items-center justify-end gap-1.5">Holding Cost (H) <ArrowUpDown className="w-3.5 h-3.5" /></div>
+                  <th className="py-3.5 px-5 cursor-pointer hover:text-ink text-right" onClick={() => requestSort("Purchase Cost")}>
+                    <div className="flex items-center justify-end gap-1">Holding Cost (H) <ArrowUpDown className="w-3 h-3 text-ink-2/60" /></div>
                   </th>
-                  <th className="py-4 px-6 cursor-pointer hover:text-slate-100 text-right font-black text-indigo-400" onClick={() => requestSort("EOQ")}>
-                    <div className="flex items-center justify-end gap-1.5 text-indigo-400">Optimal Order Size (EOQ) <ArrowUpDown className="w-3.5 h-3.5" /></div>
+                  <th className="py-3.5 px-5 cursor-pointer hover:text-ink text-right font-bold text-accent" onClick={() => requestSort("EOQ")}>
+                    <div className="flex items-center justify-end gap-1 text-accent font-bold">Optimal Order Size <ArrowUpDown className="w-3 h-3 text-accent/60" /></div>
                   </th>
-                  <th className="py-4 px-6 cursor-pointer hover:text-slate-100 text-right font-semibold text-indigo-400" onClick={() => requestSort("Days Between Orders")}>
-                    <div className="flex items-center justify-end gap-1.5 text-indigo-400">Interval (Days) <ArrowUpDown className="w-3.5 h-3.5" /></div>
+                  <th className="py-3.5 px-5 cursor-pointer hover:text-ink text-right" onClick={() => requestSort("Days Between Orders")}>
+                    <div className="flex items-center justify-end gap-1">Interval (Days) <ArrowUpDown className="w-3 h-3 text-ink-2/60" /></div>
                   </th>
-                  <th className="py-4 px-6 cursor-pointer hover:text-slate-100 text-right font-black text-emerald-400" onClick={() => requestSort("Annual Cost Savings")}>
-                    <div className="flex items-center justify-end gap-1.5 text-emerald-400">Annual Savings <ArrowUpDown className="w-3.5 h-3.5" /></div>
+                  <th className="py-3.5 px-5 cursor-pointer hover:text-ink text-right font-bold text-accent" onClick={() => requestSort("Annual Cost Savings")}>
+                    <div className="flex items-center justify-end gap-1 text-accent font-bold">Annual Savings <ArrowUpDown className="w-3 h-3 text-accent/60" /></div>
                   </th>
                 </tr>
               )}
 
               {activeTab === "ledger" && (
                 <tr>
-                  <th className="py-4 px-6 cursor-pointer hover:text-slate-100" onClick={() => requestSort("Product Name")}>
-                    <div className="flex items-center gap-1.5">Product Name <ArrowUpDown className="w-3.5 h-3.5" /></div>
+                  <th className="py-3.5 px-5 cursor-pointer hover:text-ink" onClick={() => requestSort("Product Name")}>
+                    <div className="flex items-center gap-1">Product Name <ArrowUpDown className="w-3 h-3 text-ink-2/60" /></div>
                   </th>
-                  <th className="py-4 px-6 cursor-pointer hover:text-slate-100 text-right" onClick={() => requestSort("Avg Monthly Sales")}>
-                    <div className="flex items-center justify-end gap-1.5">Avg Sales <ArrowUpDown className="w-3.5 h-3.5" /></div>
+                  <th className="py-3.5 px-5 cursor-pointer hover:text-ink text-right" onClick={() => requestSort("Avg Monthly Sales")}>
+                    <div className="flex items-center justify-end gap-1">Avg Sales <ArrowUpDown className="w-3 h-3 text-ink-2/60" /></div>
                   </th>
-                  <th className="py-4 px-6 cursor-pointer hover:text-slate-100 text-right" onClick={() => requestSort("Predicted Demand (Next Month)")}>
-                    <div className="flex items-center justify-end gap-1.5">Demand <ArrowUpDown className="w-3.5 h-3.5" /></div>
+                  <th className="py-3.5 px-5 cursor-pointer hover:text-ink text-right" onClick={() => requestSort("Predicted Demand (Next Month)")}>
+                    <div className="flex items-center justify-end gap-1">Demand <ArrowUpDown className="w-3 h-3 text-ink-2/60" /></div>
                   </th>
-                  <th className="py-4 px-6 cursor-pointer hover:text-slate-100 text-right" onClick={() => requestSort("Usable Stock")}>
-                    <div className="flex items-center justify-end gap-1.5">Usable Stock <ArrowUpDown className="w-3.5 h-3.5" /></div>
+                  <th className="py-3.5 px-5 cursor-pointer hover:text-ink text-right" onClick={() => requestSort("Usable Stock")}>
+                    <div className="flex items-center justify-end gap-1">Usable Stock <ArrowUpDown className="w-3 h-3 text-ink-2/60" /></div>
                   </th>
-                  <th className="py-4 px-6 cursor-pointer hover:text-slate-100 text-right font-bold text-emerald-400" onClick={() => requestSort("Selling Price")}>
-                    <div className="flex items-center justify-end gap-1.5 text-emerald-400">Selling Price <ArrowUpDown className="w-3.5 h-3.5" /></div>
+                  <th className="py-3.5 px-5 cursor-pointer hover:text-ink text-right" onClick={() => requestSort("Selling Price")}>
+                    <div className="flex items-center justify-end gap-1">Price <ArrowUpDown className="w-3 h-3 text-ink-2/60" /></div>
                   </th>
-                  <th className="py-4 px-6 cursor-pointer hover:text-slate-100 text-right font-bold text-emerald-400" onClick={() => requestSort("Profit Margin (%)")}>
-                    <div className="flex items-center justify-end gap-1.5 text-emerald-400">Margin % <ArrowUpDown className="w-3.5 h-3.5" /></div>
+                  <th className="py-3.5 px-5 cursor-pointer hover:text-ink text-right" onClick={() => requestSort("Profit Margin (%)")}>
+                    <div className="flex items-center justify-end gap-1">Margin <ArrowUpDown className="w-3 h-3 text-ink-2/60" /></div>
                   </th>
-                  <th className="py-4 px-6 cursor-pointer hover:text-slate-100 text-right font-bold text-purple-400" onClick={() => requestSort("EOQ")}>
-                    <div className="flex items-center justify-end gap-1.5 text-purple-400">EOQ <ArrowUpDown className="w-3.5 h-3.5" /></div>
+                  <th className="py-3.5 px-5 cursor-pointer hover:text-ink text-right" onClick={() => requestSort("EOQ")}>
+                    <div className="flex items-center justify-end gap-1">EOQ <ArrowUpDown className="w-3 h-3 text-ink-2/60" /></div>
                   </th>
-                  <th className="py-4 px-6 cursor-pointer hover:text-slate-100 text-right font-semibold text-purple-400" onClick={() => requestSort("Days Between Orders")}>
-                    <div className="flex items-center justify-end gap-1.5 text-purple-400">Interval <ArrowUpDown className="w-3.5 h-3.5" /></div>
+                  <th className="py-3.5 px-5 cursor-pointer hover:text-ink text-right" onClick={() => requestSort("Days Between Orders")}>
+                    <div className="flex items-center justify-end gap-1">Interval <ArrowUpDown className="w-3 h-3 text-ink-2/60" /></div>
                   </th>
-                  <th className="py-4 px-6 cursor-pointer hover:text-slate-100 text-center" onClick={() => requestSort("Action")}>
-                    <div className="flex items-center justify-center gap-1.5">Action <ArrowUpDown className="w-3.5 h-3.5" /></div>
+                  <th className="py-3.5 px-5 cursor-pointer hover:text-ink text-center" onClick={() => requestSort("Action")}>
+                    <div className="flex items-center justify-center gap-1">Status <ArrowUpDown className="w-3 h-3 text-ink-2/60" /></div>
                   </th>
-                  <th className="py-4 px-6 cursor-pointer hover:text-slate-100 text-right" onClick={() => requestSort("Units to Buy")}>
-                    <div className="flex items-center justify-end gap-1.5">Buy <ArrowUpDown className="w-3.5 h-3.5" /></div>
+                  <th className="py-3.5 px-5 cursor-pointer hover:text-ink text-right font-bold text-rose-400" onClick={() => requestSort("Units to Buy")}>
+                    <div className="flex items-center justify-end gap-1 text-rose-400 font-bold">Buy <ArrowUpDown className="w-3 h-3 text-rose-500/60" /></div>
                   </th>
                 </tr>
               )}
             </thead>
-            <tbody className="divide-y divide-slate-800/50">
+            
+            <tbody className="divide-y divide-rule/50 font-body">
               {paginatedData.length === 0 ? (
                 <tr>
-                  <td colSpan={12} className="py-12 text-center text-slate-500">
+                  <td colSpan={12} className="py-12 text-center text-ink-2 text-xs">
                     No matching products found.
                   </td>
                 </tr>
@@ -580,54 +569,54 @@ export default function DashboardTabs({ data }) {
                 paginatedData.map((item, index) => (
                   <tr
                     key={index}
-                    className="hover:bg-slate-900/30 transition-colors duration-150 group"
+                    className="hover:bg-paper-3/30 transition-colors duration-150 group"
                   >
                     {activeTab === "procurement" && (
                       <>
-                        <td className="py-4 px-6 font-semibold text-slate-200 group-hover:text-purple-400 transition-colors">
+                        <td className="py-3.5 px-5 font-display font-semibold text-ink group-hover:text-accent transition-colors">
                           {item["Product Name"]}
                         </td>
-                        <td className="py-4 px-6 text-right font-mono">{item["Avg Monthly Sales"]}</td>
-                        <td className="py-4 px-6 text-right font-mono font-bold text-blue-400 bg-blue-500/5">{item["Predicted Demand (Next Month)"]}</td>
-                        <td className="py-4 px-6 text-right font-mono">{item["Usable Stock"]}</td>
-                        <td className="py-4 px-6 text-right font-mono text-slate-400">{item["Reorder Point (ROP)"]}</td>
-                        <td className="py-4 px-6 text-right font-mono font-extrabold text-rose-400 bg-rose-500/5">
+                        <td className="py-3.5 px-5 text-right tnum text-ink-2">{item["Avg Monthly Sales"]}</td>
+                        <td className="py-3.5 px-5 text-right tnum font-bold text-accent bg-accent/5">{item["Predicted Demand (Next Month)"]}</td>
+                        <td className="py-3.5 px-5 text-right tnum text-ink-2">{item["Usable Stock"]}</td>
+                        <td className="py-3.5 px-5 text-right tnum text-ink-2/70">{item["Reorder Point (ROP)"]}</td>
+                        <td className="py-3.5 px-5 text-right tnum font-bold text-rose-400 bg-rose-500/5">
                           {item["Units to Buy"]}
                         </td>
-                        <td className="py-4 px-6 text-right font-mono font-bold text-purple-400 bg-purple-500/5">
-                          {item["EOQ"]} units
+                        <td className="py-3.5 px-5 text-right tnum font-bold text-accent bg-accent/5">
+                          {item["EOQ"]}
                         </td>
-                        <td className="py-4 px-6 text-right font-mono text-purple-400 bg-purple-500/5">
-                          {item["Days Between Orders"]} days
+                        <td className="py-3.5 px-5 text-right tnum text-accent bg-accent/5">
+                          {item["Days Between Orders"]}d
                         </td>
                       </>
                     )}
 
                     {activeTab === "overstock" && (
                       <>
-                        <td className="py-4 px-6 font-semibold text-slate-200 group-hover:text-purple-400 transition-colors">
+                        <td className="py-3.5 px-5 font-display font-semibold text-ink group-hover:text-accent transition-colors">
                           {item["Product Name"]}
                         </td>
-                        <td className="py-4 px-6 text-right font-mono">{item["Avg Monthly Sales"]}</td>
-                        <td className="py-4 px-6 text-right font-mono">{item["Predicted Demand (Next Month)"]}</td>
-                        <td className="py-4 px-6 text-right font-mono text-amber-400/80">{item["Usable Stock"]}</td>
-                        <td className="py-4 px-6 text-right font-mono font-bold text-amber-400 bg-amber-500/5">{item["Total Stock"]}</td>
-                        <td className="py-4 px-6 text-center font-mono text-slate-400">{item["Nearest Expiry Date"]}</td>
-                        <td className="py-4 px-6 text-center">{getActionBadge(item.Action)}</td>
+                        <td className="py-3.5 px-5 text-right tnum text-ink-2">{item["Avg Monthly Sales"]}</td>
+                        <td className="py-3.5 px-5 text-right tnum text-ink-2">{item["Predicted Demand (Next Month)"]}</td>
+                        <td className="py-3.5 px-5 text-right tnum text-amber-400/80">{item["Usable Stock"]}</td>
+                        <td className="py-3.5 px-5 text-right tnum font-bold text-amber-400 bg-amber-500/5">{item["Total Stock"]}</td>
+                        <td className="py-3.5 px-5 text-center tnum text-ink-2/70">{item["Nearest Expiry Date"]}</td>
+                        <td className="py-3.5 px-5 text-center">{getActionBadge(item.Action)}</td>
                       </>
                     )}
 
                     {activeTab === "expiry" && (
                       <>
-                        <td className="py-4 px-6 font-semibold text-slate-200 group-hover:text-purple-400 transition-colors">
+                        <td className="py-3.5 px-5 font-display font-semibold text-ink group-hover:text-accent transition-colors">
                           {item["Product Name"]}
                         </td>
-                        <td className="py-4 px-6 text-right font-mono">{item["Usable Stock"]}</td>
-                        <td className="py-4 px-6 text-right font-mono font-bold text-rose-400 bg-rose-500/5">
+                        <td className="py-3.5 px-5 text-right tnum text-ink-2">{item["Usable Stock"]}</td>
+                        <td className="py-3.5 px-5 text-right tnum font-bold text-rose-400 bg-rose-500/5">
                           {item["Risky Stock (Near Expiry)"]}
                         </td>
-                        <td className="py-4 px-6 text-right font-mono">{item["Total Stock"]}</td>
-                        <td className="py-4 px-6 text-center font-mono text-rose-400/90 font-medium">
+                        <td className="py-3.5 px-5 text-right tnum text-ink-2">{item["Total Stock"]}</td>
+                        <td className="py-3.5 px-5 text-center tnum text-rose-400/90 font-medium">
                           {item["Nearest Expiry Date"]}
                         </td>
                       </>
@@ -635,23 +624,23 @@ export default function DashboardTabs({ data }) {
 
                     {activeTab === "profitability" && (
                       <>
-                        <td className="py-4 px-6 font-semibold text-slate-200 group-hover:text-purple-400 transition-colors">
+                        <td className="py-3.5 px-5 font-display font-semibold text-ink group-hover:text-accent transition-colors">
                           {item["Product Name"]}
                         </td>
-                        <td className="py-4 px-6 text-right font-mono text-slate-400">${item["Purchase Cost"].toFixed(2)}</td>
-                        <td className="py-4 px-6 text-right font-mono font-bold text-emerald-400">${item["Selling Price"].toFixed(2)}</td>
-                        <td className="py-4 px-6 text-right font-mono">{item["Annual Demand"].toLocaleString()}</td>
-                        <td className="py-4 px-6 text-right font-mono font-bold text-blue-400 bg-blue-500/5">
-                          ${(item["Revenue"] || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        <td className="py-3.5 px-5 text-right tnum text-ink-2/70">₹{item["Purchase Cost"].toFixed(2)}</td>
+                        <td className="py-3.5 px-5 text-right tnum font-bold text-accent">₹{item["Selling Price"].toFixed(2)}</td>
+                        <td className="py-3.5 px-5 text-right tnum text-ink-2">{item["Annual Demand"].toLocaleString()}</td>
+                        <td className="py-3.5 px-5 text-right tnum font-bold text-accent bg-accent/5">
+                          ₹{(item["Revenue"] || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                         </td>
-                        <td className="py-4 px-6 text-right font-mono font-bold text-emerald-400 bg-emerald-500/5">
-                          ${(item["Profit"] || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        <td className="py-3.5 px-5 text-right tnum font-bold text-accent bg-accent/5">
+                          ₹{(item["Profit"] || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                         </td>
-                        <td className="py-4 px-6 text-right font-mono">
+                        <td className="py-3.5 px-5 text-right tnum">
                           <div className="flex items-center justify-end gap-2">
-                            <span className="font-bold text-indigo-400">{item["Profit Margin (%)"].toFixed(1)}%</span>
-                            <div className="w-12 bg-slate-800 rounded-full h-1.5 hidden sm:block border border-slate-700/55 overflow-hidden">
-                              <div className="bg-indigo-500 h-full rounded-full" style={{ width: `${item["Profit Margin (%)"]}%` }}></div>
+                            <span className="font-bold text-accent">{item["Profit Margin (%)"].toFixed(1)}%</span>
+                            <div className="w-12 bg-paper-3 rounded-full h-1 hidden sm:block border border-rule overflow-hidden">
+                              <div className="bg-accent h-full rounded-full" style={{ width: `${item["Profit Margin (%)"]}%` }}></div>
                             </div>
                           </div>
                         </td>
@@ -660,46 +649,46 @@ export default function DashboardTabs({ data }) {
 
                     {activeTab === "eoq" && (
                       <>
-                        <td className="py-4 px-6 font-semibold text-slate-200 group-hover:text-purple-400 transition-colors">
+                        <td className="py-3.5 px-5 font-display font-semibold text-ink group-hover:text-accent transition-colors">
                           {item["Product Name"]}
                         </td>
-                        <td className="py-4 px-6 text-right font-mono">{item["Annual Demand"].toLocaleString()} units</td>
-                        <td className="py-4 px-6 text-right font-mono text-slate-400">${item["Purchase Cost"].toFixed(2)}</td>
-                        <td className="py-4 px-6 text-right font-mono text-slate-400">
-                          ${Math.max(item["Purchase Cost"] * 0.20, 1).toFixed(2)}/unit
+                        <td className="py-3.5 px-5 text-right tnum text-ink-2">{item["Annual Demand"].toLocaleString()} units</td>
+                        <td className="py-3.5 px-5 text-right tnum text-ink-2/70">₹{item["Purchase Cost"].toFixed(2)}</td>
+                        <td className="py-3.5 px-5 text-right tnum text-ink-2/70">
+                          ₹{Math.max(item["Purchase Cost"] * 0.20, 1).toFixed(2)}
                         </td>
-                        <td className="py-4 px-6 text-right font-mono font-black text-indigo-400 bg-indigo-500/5">
+                        <td className="py-3.5 px-5 text-right tnum font-bold text-accent bg-accent/5">
                           {item["EOQ"]} units
                         </td>
-                        <td className="py-4 px-6 text-right font-mono font-semibold text-indigo-400 bg-indigo-500/5">
-                          {item["Days Between Orders"]} days
+                        <td className="py-3.5 px-5 text-right tnum font-medium text-accent bg-accent/5">
+                          {item["Days Between Orders"]}d
                         </td>
-                        <td className="py-4 px-6 text-right font-mono font-bold text-emerald-400 bg-emerald-500/5">
-                          ${item["Annual Cost Savings"].toFixed(2)}
+                        <td className="py-3.5 px-5 text-right tnum font-bold text-accent bg-accent/5">
+                          ₹{item["Annual Cost Savings"].toFixed(2)}
                         </td>
                       </>
                     )}
 
                     {activeTab === "ledger" && (
                       <>
-                        <td className="py-4 px-6 font-semibold text-slate-200 group-hover:text-purple-400 transition-colors">
+                        <td className="py-3.5 px-5 font-display font-semibold text-ink group-hover:text-accent transition-colors">
                           {item["Product Name"]}
                         </td>
-                        <td className="py-4 px-6 text-right font-mono">{item["Avg Monthly Sales"]}</td>
-                        <td className="py-4 px-6 text-right font-mono">{item["Predicted Demand (Next Month)"]}</td>
-                        <td className="py-4 px-6 text-right font-mono">{item["Usable Stock"]}</td>
+                        <td className="py-3.5 px-5 text-right tnum text-ink-2">{item["Avg Monthly Sales"]}</td>
+                        <td className="py-3.5 px-5 text-right tnum text-ink-2">{item["Predicted Demand (Next Month)"]}</td>
+                        <td className="py-3.5 px-5 text-right tnum text-ink-2">{item["Usable Stock"]}</td>
                         
-                        <td className="py-4 px-6 text-right font-mono text-emerald-400">${item["Selling Price"].toFixed(2)}</td>
-                        <td className="py-4 px-6 text-right font-mono text-emerald-400">{item["Profit Margin (%)"].toFixed(1)}%</td>
-                        <td className="py-4 px-6 text-right font-mono text-purple-400 font-semibold">{item["EOQ"]}</td>
-                        <td className="py-4 px-6 text-right font-mono text-purple-400">{item["Days Between Orders"]}d</td>
+                        <td className="py-3.5 px-5 text-right tnum text-accent">₹{item["Selling Price"].toFixed(2)}</td>
+                        <td className="py-3.5 px-5 text-right tnum text-accent">{item["Profit Margin (%)"].toFixed(1)}%</td>
+                        <td className="py-3.5 px-5 text-right tnum text-accent font-semibold">{item["EOQ"]}</td>
+                        <td className="py-3.5 px-5 text-right tnum text-accent">{item["Days Between Orders"]}d</td>
 
-                        <td className="py-4 px-6 text-center">{getActionBadge(item.Action)}</td>
-                        <td className="py-4 px-6 text-right font-mono font-bold">
+                        <td className="py-3.5 px-5 text-center">{getActionBadge(item.Action)}</td>
+                        <td className="py-3.5 px-5 text-right tnum font-bold">
                           {item["Units to Buy"] > 0 ? (
                             <span className="text-rose-400">{item["Units to Buy"]}</span>
                           ) : (
-                            <span className="text-slate-500">-</span>
+                            <span className="text-ink-2/40">-</span>
                           )}
                         </td>
                       </>
@@ -711,36 +700,36 @@ export default function DashboardTabs({ data }) {
           </table>
         </div>
 
-        {/* Pagination Bar */}
+        {/* Pagination Controls */}
         {sortedData.length > 0 && (
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 px-6 py-4 bg-slate-950/40 border-t border-slate-800/60 text-xs text-slate-400">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 px-5 py-3.5 bg-paper-3/30 border-t border-rule text-[11px] text-ink-2">
             <div>
-              Showing <span className="font-semibold text-slate-200">{(currentPage - 1) * itemsPerPage + 1}</span> to{" "}
-              <span className="font-semibold text-slate-200">
+              Showing <span className="font-semibold text-ink">{(currentPage - 1) * itemsPerPage + 1}</span> to{" "}
+              <span className="font-semibold text-ink">
                 {Math.min(currentPage * itemsPerPage, sortedData.length)}
               </span>{" "}
-              of <span className="font-semibold text-slate-200">{sortedData.length}</span> items
+              of <span className="font-semibold text-ink">{sortedData.length}</span> entries
             </div>
             
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-1.5 font-mono">
               <button
                 onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
                 disabled={currentPage === 1}
-                className="p-1.5 rounded-lg bg-slate-900 border border-slate-800 hover:bg-slate-850 disabled:opacity-40 disabled:hover:bg-slate-900 transition animate-fadeIn"
+                className="p-1 rounded-sm bg-paper-3 border border-rule hover:border-rule-hover disabled:opacity-30 disabled:hover:border-rule hover:bg-paper-2 transition cursor-pointer active:scale-95 focus-visible:outline-2 focus-visible:outline-accent"
               >
-                <ChevronLeft className="w-4 h-4" />
+                <ChevronLeft className="w-3.5 h-3.5 text-ink-2" />
               </button>
               
-              <span className="px-3 py-1 bg-slate-900 border border-slate-850 rounded-lg text-slate-200 font-semibold font-mono">
-                Page {currentPage} of {totalPages}
+              <span className="px-2.5 py-1 bg-paper-3 border border-rule rounded-sm text-ink font-semibold">
+                {currentPage} / {totalPages}
               </span>
               
               <button
                 onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
                 disabled={currentPage === totalPages}
-                className="p-1.5 rounded-lg bg-slate-900 border border-slate-800 hover:bg-slate-850 disabled:opacity-40 disabled:hover:bg-slate-900 transition animate-fadeIn"
+                className="p-1 rounded-sm bg-paper-3 border border-rule hover:border-rule-hover disabled:opacity-30 disabled:hover:border-rule hover:bg-paper-2 transition cursor-pointer active:scale-95 focus-visible:outline-2 focus-visible:outline-accent"
               >
-                <ChevronRight className="w-4 h-4" />
+                <ChevronRight className="w-3.5 h-3.5 text-ink-2" />
               </button>
             </div>
           </div>

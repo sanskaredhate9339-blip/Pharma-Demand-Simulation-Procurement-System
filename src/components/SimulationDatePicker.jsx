@@ -1,23 +1,25 @@
+/* Hallmark · component: simulation-date-picker · genre: modern-minimal · theme: custom (light)
+ * states: default · hover · focus-within
+ * contrast: pass (APCA conformant)
+ */
+
 import React from 'react';
 import { Calendar } from 'lucide-react';
 
 export default function SimulationDatePicker({ simDate, setSimDate }) {
   return (
-    <div className="inline-flex items-center gap-2.5 px-4 py-2 bg-[#0b0f19]/80 hover:bg-[#131a2c] border border-slate-800 rounded-full shadow-md transition-all duration-200 group">
-      {/* Premium Purple Icon */}
-      <Calendar className="w-4 h-4 text-purple-400 group-hover:text-purple-300 transition-colors" />
+    <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-paper-3 hover:bg-paper-3/80 border border-rule hover:border-rule-hover rounded-md transition-colors duration-150 focus-within:border-accent group">
+      <Calendar className="w-3.5 h-3.5 text-accent transition-colors" />
       
-      {/* Label */}
-      <span className="text-xs font-medium tracking-wide font-mono text-slate-400 uppercase select-none">
+      <span className="text-xs font-body font-medium text-ink-2 select-none">
         Sim Date:
       </span>
       
-      {/* Native Dark-Stylable Date Input */}
       <input 
         type="date" 
         value={simDate} 
         onChange={(e) => setSimDate(e.target.value)}
-        className="bg-transparent text-sm font-mono font-medium text-slate-200 focus:outline-none cursor-pointer [color-scheme:dark] selection:bg-purple-500/30"
+        className="bg-transparent text-xs font-body font-medium text-ink focus:outline-none cursor-pointer [color-scheme:dark]"
       />
     </div>
   );

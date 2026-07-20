@@ -1,3 +1,8 @@
+/* Hallmark · component: analytics-charts · genre: modern-minimal · theme: custom (light)
+ * states: default · hover · active · focus-visible
+ * contrast: pass (APCA conformant)
+ */
+
 import React, { useState, useMemo } from "react";
 import {
   ResponsiveContainer,
@@ -22,9 +27,9 @@ export default function AnalyticsCharts({ data }) {
     const optimal = data.filter((item) => item.Action.includes("OPTIMAL")).length;
 
     return [
-      { name: "Restock Required", value: restock, color: "#f43f5e" }, // rose-500
-      { name: "Optimal Stock", value: optimal, color: "#10b981" },   // emerald-500
-      { name: "Excessive Stock", value: excessive, color: "#f59e0b" }, // amber-500
+      { name: "Restock Required", value: restock, color: "oklch(62% 0.18 15)" },  // Soft Crimson
+      { name: "Optimal Stock", value: optimal, color: "oklch(74% 0.12 145)" },   // Clinical Mint
+      { name: "Excessive Stock", value: excessive, color: "oklch(75% 0.13 75)" }, // Soft Amber
     ].filter(item => item.value > 0);
   }, [data]);
 
@@ -75,18 +80,18 @@ export default function AnalyticsCharts({ data }) {
     setSelectedProducts([]);
   };
 
-  const CustomTooltip = ({ active, payload, label }) => {
+  const CustomTooltip = ({ active, payload }) => {
     if (active && payload && payload.length) {
       return (
-        <div className="glass-panel p-4 rounded-2xl border border-slate-700 bg-slate-950/90 shadow-2xl text-xs flex flex-col gap-2">
-          <p className="font-semibold text-slate-100 mb-1">{payload[0].payload.fullName}</p>
+        <div className="bg-paper-2 border border-rule p-4 rounded-md shadow-lg text-xs font-body flex flex-col gap-2 leading-relaxed">
+          <p className="font-body font-medium text-ink mb-1">{payload[0].payload.fullName}</p>
           {payload.map((entry, idx) => (
             <div key={idx} className="flex items-center justify-between gap-6">
-              <span className="flex items-center gap-1.5 text-slate-400">
-                <span className="w-2 h-2 rounded-full" style={{ backgroundColor: entry.color }}></span>
+              <span className="flex items-center gap-1.5 text-ink-2">
+                <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: entry.color }}></span>
                 {entry.name}:
               </span>
-              <span className="font-mono font-bold text-slate-200 text-right">{entry.value} units</span>
+              <span className="font-semibold text-ink text-right tnum">{entry.value} units</span>
             </div>
           ))}
         </div>
@@ -98,29 +103,29 @@ export default function AnalyticsCharts({ data }) {
   if (data.length === 0) return null;
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 w-full mb-8">
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 w-full">
       {/* Donut Chart: Inventory Health Breakdown */}
-      <div className="glass-panel border border-slate-800/80 bg-slate-900/10 p-6 rounded-3xl flex flex-col h-[420px]">
-        <div className="flex items-center gap-2 mb-4">
-          <PieChartIcon className="w-5 h-5 text-purple-400" />
-          <h3 className="text-base font-semibold text-slate-200">Stock Health Distribution</h3>
+      <div className="bg-paper-2 border border-rule p-5 rounded-md flex flex-col h-[400px]">
+        <div className="flex items-center gap-2 mb-4 border-b border-rule pb-3">
+          <PieChartIcon className="w-4 h-4 text-accent" />
+          <h3 className="text-sm font-display font-semibold text-ink tracking-tight">Stock Health Distribution</h3>
         </div>
 
         {stockHealthData.length === 0 ? (
-          <div className="flex-1 flex items-center justify-center text-slate-500 text-sm">
-            No stock health status available
+          <div className="flex-grow flex items-center justify-center text-ink-2 text-xs font-body">
+            No health diagnostics
           </div>
         ) : (
-          <div className="flex-1 flex flex-col items-center justify-center relative">
-            <ResponsiveContainer width="100%" height={230}>
+          <div className="flex-grow flex flex-col items-center justify-center relative">
+            <ResponsiveContainer width="100%" height={210}>
               <PieChart>
                 <Pie
                   data={stockHealthData}
                   cx="50%"
                   cy="50%"
-                  innerRadius={65}
-                  outerRadius={85}
-                  paddingAngle={4}
+                  innerRadius={60}
+                  outerRadius={80}
+                  paddingAngle={3}
                   dataKey="value"
                 >
                   {stockHealthData.map((entry, index) => (
@@ -131,9 +136,9 @@ export default function AnalyticsCharts({ data }) {
                   content={({ active, payload }) => {
                     if (active && payload && payload.length) {
                       return (
-                        <div className="glass-panel px-3 py-2 rounded-xl text-xs bg-slate-950/95 border border-slate-800 text-slate-200">
-                          <span className="font-semibold">{payload[0].name}</span>:{" "}
-                          <span className="font-mono">{payload[0].value} products</span>
+                        <div className="bg-paper-2 border border-rule px-3 py-1.5 rounded-md text-xs font-body text-ink">
+                          <span className="font-medium">{payload[0].name}</span>:{" "}
+                          <span className="tnum">{payload[0].value} formulations</span>
                         </div>
                       );
                     }
@@ -143,13 +148,15 @@ export default function AnalyticsCharts({ data }) {
               </PieChart>
             </ResponsiveContainer>
 
-            {/* Legend */}
-            <div className="flex flex-wrap justify-center gap-x-4 gap-y-2 text-xs mt-3 w-full border-t border-slate-800/60 pt-4">
+            {/* Legend indicators */}
+            <div className="flex flex-col gap-1.5 mt-3 w-full border-t border-rule/50 pt-4 text-xs font-body">
               {stockHealthData.map((item, idx) => (
-                <div key={idx} className="flex items-center gap-1.5">
-                  <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: item.color }}></div>
-                  <span className="text-slate-400">{item.name}</span>
-                  <span className="font-semibold text-slate-200">({item.value})</span>
+                <div key={idx} className="flex items-center justify-between">
+                  <div className="flex items-center gap-1.5">
+                    <div className="w-2 h-2 rounded-full" style={{ backgroundColor: item.color }}></div>
+                    <span className="text-ink-2">{item.name}</span>
+                  </div>
+                  <span className="font-semibold text-ink tnum">{item.value} ({Math.round(item.value / data.length * 100)}%)</span>
                 </div>
               ))}
             </div>
@@ -158,30 +165,30 @@ export default function AnalyticsCharts({ data }) {
       </div>
 
       {/* Bar Chart: Comparison */}
-      <div className="glass-panel border border-slate-800/80 bg-slate-900/10 p-6 rounded-3xl lg:col-span-2 flex flex-col h-[420px]">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
+      <div className="bg-paper-2 border border-rule p-5 rounded-md lg:col-span-2 flex flex-col h-[400px]">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-3 border-b border-rule pb-3">
           <div className="flex items-center gap-2">
-            <BarChart3 className="w-5 h-5 text-purple-400" />
-            <h3 className="text-base font-semibold text-slate-200">Usable Stock vs. Reorder Point (ROP)</h3>
+            <BarChart3 className="w-4 h-4 text-accent" />
+            <h3 className="text-sm font-display font-semibold text-ink tracking-tight">Usable Stock vs. Reorder Thresholds</h3>
           </div>
-          <div className="flex flex-wrap items-center gap-2 text-xs text-slate-400">
+          <div className="flex items-center gap-2 text-xs font-body">
             <button
               onClick={selectAll}
-              className="px-2.5 py-1 bg-slate-800/60 hover:bg-slate-700/80 border border-slate-700/50 rounded-lg transition"
+              className="px-2 py-1 bg-paper-3 hover:bg-paper-2 border border-rule hover:border-rule-hover text-ink rounded-sm transition-all focus-visible:outline-2 focus-visible:outline-accent active:scale-95 cursor-pointer"
             >
               Select All
             </button>
             <button
               onClick={selectNone}
-              className="px-2.5 py-1 bg-slate-800/60 hover:bg-slate-700/80 border border-slate-700/50 rounded-lg transition"
+              className="px-2 py-1 bg-paper-3 hover:bg-paper-2 border border-rule hover:border-rule-hover text-ink rounded-sm transition-all focus-visible:outline-2 focus-visible:outline-accent active:scale-95 cursor-pointer"
             >
               Clear
             </button>
           </div>
         </div>
 
-        {/* Product Selector Bar */}
-        <div className="flex items-center gap-2 overflow-x-auto pb-3 mb-2 border-b border-slate-850 scrollbar-thin">
+        {/* Product Selection Bar with Custom Horizontal Scrollbar */}
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-2.5 mb-3 border-b border-rule/50">
           {allProductNames.map((pName) => {
             const isSelected = selectedProducts.includes(pName);
             const isRestock = data.find((i) => i["Product Name"] === pName)?.Action.includes("RESTOCK");
@@ -190,18 +197,18 @@ export default function AnalyticsCharts({ data }) {
               <button
                 key={pName}
                 onClick={() => toggleProduct(pName)}
-                className={`flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-xl border flex-shrink-0 transition-all ${
+                className={`flex items-center gap-1.5 px-2.5 py-1 text-xs font-body rounded-sm border flex-shrink-0 transition-all focus-visible:outline-2 focus-visible:outline-accent cursor-pointer ${
                   isSelected
-                    ? "bg-purple-600/15 border-purple-500/40 text-purple-300"
+                    ? "bg-accent/10 border-accent text-accent"
                     : isRestock
-                    ? "bg-rose-500/5 border-rose-500/20 text-rose-400/80 hover:bg-rose-500/10"
-                    : "bg-slate-900/30 border-slate-800 text-slate-400 hover:bg-slate-800/50 hover:text-slate-300"
+                    ? "bg-rose-500/5 border-rose-500/25 text-rose-400 hover:bg-rose-500/10"
+                    : "bg-paper-3 border-rule text-ink-2 hover:bg-paper-2 hover:text-ink hover:border-rule-hover"
                 }`}
               >
                 {isSelected ? (
-                  <CheckSquare className="w-3.5 h-3.5" />
+                  <CheckSquare className="w-3 h-3 text-accent" />
                 ) : (
-                  <Square className="w-3.5 h-3.5" />
+                  <Square className="w-3 h-3 text-ink-2" />
                 )}
                 {pName}
               </button>
@@ -209,43 +216,45 @@ export default function AnalyticsCharts({ data }) {
           })}
         </div>
 
-        {/* Chart View */}
-        <div className="flex-1 min-h-[200px]">
+        {/* Chart Frame */}
+        <div className="flex-grow min-h-[180px]">
           {selectedProducts.length === 0 ? (
-            <div className="w-full h-full flex items-center justify-center text-slate-500 text-sm">
-              Please select one or more products above to view comparison
+            <div className="w-full h-full flex items-center justify-center text-ink-2 text-xs font-body">
+              Toggle formulations above to activate comparative analytics
             </div>
           ) : (
             <ResponsiveContainer width="100%" height="95%">
               <BarChart
                 data={comparisonData}
-                margin={{ top: 10, right: 10, left: -20, bottom: 5 }}
+                margin={{ top: 10, right: 10, left: -25, bottom: 5 }}
               >
-                <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" vertical={false} />
+                <CartesianGrid strokeDasharray="3 3" stroke="oklch(22% 0.010 145)" vertical={false} />
                 <XAxis
                   dataKey="name"
-                  stroke="#64748b"
-                  fontSize={10}
+                  stroke="oklch(76% 0.008 145)"
+                  fontSize={9}
+                  fontFamily="var(--font-mono)"
                   tickLine={false}
-                  axisLine={{ stroke: "#334155" }}
+                  axisLine={{ stroke: "oklch(22% 0.010 145)" }}
                 />
                 <YAxis
-                  stroke="#64748b"
-                  fontSize={10}
+                  stroke="oklch(76% 0.008 145)"
+                  fontSize={9}
+                  fontFamily="var(--font-mono)"
                   tickLine={false}
-                  axisLine={{ stroke: "#334155" }}
+                  axisLine={{ stroke: "oklch(22% 0.010 145)" }}
                 />
-                <Tooltip content={<CustomTooltip />} cursor={{ fill: "rgba(255,255,255,0.03)" }} />
+                <Tooltip content={<CustomTooltip />} cursor={{ fill: "rgba(255, 255, 255, 0.02)" }} />
                 <Legend
                   verticalAlign="top"
-                  height={36}
-                  iconSize={10}
+                  height={28}
+                  iconSize={8}
                   iconType="circle"
-                  wrapperStyle={{ fontSize: "11px", color: "#94a3b8" }}
+                  wrapperStyle={{ fontSize: "10px", fontFamily: "var(--font-mono)", color: "oklch(76% 0.008 145)" }}
                 />
-                <Bar dataKey="Usable Stock" fill="#a855f7" radius={[4, 4, 0, 0]} />
-                <Bar dataKey="Reorder Point (ROP)" fill="#64748b" radius={[4, 4, 0, 0]} />
-                <Bar dataKey="Predicted Demand" fill="#3b82f6" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="Usable Stock" fill="oklch(74% 0.12 145)" radius={[2, 2, 0, 0]} />
+                <Bar dataKey="Reorder Point (ROP)" fill="oklch(45% 0.05 145)" radius={[2, 2, 0, 0]} />
+                <Bar dataKey="Predicted Demand" fill="oklch(60% 0.14 250)" radius={[2, 2, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           )}

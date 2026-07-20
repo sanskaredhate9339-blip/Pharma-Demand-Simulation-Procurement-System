@@ -1,3 +1,9 @@
+/* Hallmark · macrostructure: Workbench · theme: custom · vibe: "industrial precision, warm, clinical"
+ * paper: oklch(98% 0.01 85) · accent: oklch(65% 0.15 145)
+ * display: Outfit · body: Inter · axes: light / geometric-sans / chromatic-mint
+ * studied: no · context: explicit · v1.0.0
+ */
+
 import React, { useState, useMemo } from "react";
 import { runSimulation } from "./utils/simulation";
 import FileUploader from "./components/FileUploader";
@@ -5,14 +11,14 @@ import KPICards from "./components/KPICards";
 import AnalyticsCharts from "./components/AnalyticsCharts";
 import DashboardTabs from "./components/DashboardTabs";
 import SimulationDatePicker from "./components/SimulationDatePicker";
-import { Pill, RefreshCw, Layers, ChevronRight } from "lucide-react";
+import { Pill, RefreshCw, ChevronRight } from "lucide-react";
 
 export default function App() {
   const [rawUploadedData, setRawUploadedData] = useState(null);
   const [simDate, setSimDate] = useState("2021-01-01");
   const [isProcessing, setIsProcessing] = useState(false);
 
-  // Compute simulation data dynamically when raw uploaded data or simulation date changes
+  // Compute simulation data dynamically
   const simulationData = useMemo(() => {
     if (!rawUploadedData) return null;
     try {
@@ -25,7 +31,7 @@ export default function App() {
 
   const handleDataLoaded = (rawData) => {
     setIsProcessing(true);
-    // Simulate a brief delay to show a premium processing micro-animation
+    // Simulate brief processing delay for premium user feedback
     setTimeout(() => {
       setRawUploadedData(rawData);
       setIsProcessing(false);
@@ -37,111 +43,116 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen relative overflow-hidden pb-16">
-      {/* Background Glows */}
-      <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[60%] rounded-full bg-purple-900/10 blur-[120px] pointer-events-none"></div>
-      <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[60%] rounded-full bg-indigo-900/10 blur-[120px] pointer-events-none"></div>
-
-      {/* Grid Pattern Overlay */}
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,#1e293b12_1px,transparent_1px),linear-gradient(to_bottom,#1e293b12_1px,transparent_1px)] bg-[size:24px_24px] pointer-events-none"></div>
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        {/* Navigation/Header Bar */}
-        <header className="py-6 border-b border-slate-900 mb-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+    <div className="min-h-screen bg-paper text-ink font-body selection:bg-accent/20 selection:text-accent relative pb-16 flex flex-col justify-between">
+      {/* Navigation Header */}
+      <header className="border-b border-rule bg-paper-2/40 backdrop-blur-sm sticky top-0 z-40">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 bg-gradient-to-tr from-purple-600 to-indigo-600 rounded-2xl text-slate-100 shadow-md shadow-purple-500/20">
-              <Pill className="w-6 h-6 animate-pulse" />
+            <div className="p-2 bg-paper-3 border border-rule rounded-md text-accent">
+              <Pill className="w-5 h-5" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="text-lg font-bold text-slate-100 tracking-tight m-0">Aegis Flow</h1>
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-purple-500/15 text-purple-400 border border-purple-500/20">
+                <span className="font-display font-bold text-base text-ink tracking-tight">
+                  Aegis Flow
+                </span>
+                <span className="px-1.5 py-0.5 rounded-sm text-[10px] font-mono font-semibold bg-accent/10 text-accent border border-accent/20">
                   v2.0
                 </span>
               </div>
-              <p className="text-xs text-slate-500 font-medium">AI Pharma Procurement Suite</p>
+              <p className="text-xs text-ink-2 font-body font-medium">
+                AI Pharma Procurement Suite
+              </p>
             </div>
           </div>
           
           <div className="flex items-center gap-3">
             <SimulationDatePicker simDate={simDate} setSimDate={setSimDate} />
           </div>
-        </header>
+        </div>
+      </header>
 
-        {/* Loading State Overlay */}
-        {isProcessing && (
-          <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-md flex flex-col items-center justify-center z-50">
-            <div className="relative w-16 h-16 mb-4">
-              <div className="absolute inset-0 border-4 border-purple-500/20 rounded-full"></div>
-              <div className="absolute inset-0 border-4 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
-            </div>
-            <p className="text-base font-semibold text-slate-200">Rebuilding Warehouse Ledger...</p>
-            <p className="text-xs text-slate-500 mt-1">Simulating FEFO batches, lead times, and calculating ROP models</p>
+      {/* Loading Overlay */}
+      {isProcessing && (
+        <div className="fixed inset-0 bg-paper/90 backdrop-blur-sm flex flex-col items-center justify-center z-50 animate-fade-in">
+          <div className="relative w-12 h-12 mb-4">
+            <div className="absolute inset-0 border-2 border-accent/15 rounded-full"></div>
+            <div className="absolute inset-0 border-2 border-accent border-t-transparent rounded-full animate-spin"></div>
           </div>
-        )}
+          <p className="text-sm font-body font-medium text-ink">Rebuilding Warehouse Ledger...</p>
+          <p className="text-xs text-ink-2 font-body mt-1">Calculating safety stock parameters & FEFO draw rates</p>
+        </div>
+      )}
 
-        {/* Dashboard Content */}
+      {/* Main Content Area */}
+      <main className="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {!simulationData ? (
-          <div className="flex flex-col items-center justify-center py-12 sm:py-20 animate-fadeIn">
-            <div className="text-center max-w-2xl mx-auto mb-12">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-indigo-500/10 text-indigo-300 border border-indigo-500/20 mb-4">
-                <Layers className="w-3.5 h-3.5" />
-                Intelligent Inventory Optimization
-              </span>
-              <h2 className="text-4xl sm:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-slate-100 via-slate-100 to-slate-400 tracking-tight mb-4">
+          /* Onboarding / Landing View: Marquee Hero Structure */
+          <div className="flex flex-col items-center justify-center py-12 lg:py-20">
+            <div className="text-center max-w-2xl mx-auto mb-10">
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-sm font-body font-medium bg-accent/10 text-accent border border-accent/20 mb-6">
+                <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse"></span>
+                FEFO Batch Expiration Simulation
+              </div>
+              <h2 className="text-3xl sm:text-5xl font-display font-bold text-ink tracking-tight mb-4 leading-tight">
                 Pharma Demand Simulation & Procurement Engine
               </h2>
-              <p className="text-base sm:text-lg text-slate-400 leading-relaxed">
-                Upload your historical inventory dataset to simulate FEFO expiration schedules, analyze safety stock thresholds, and calculate optimal replenishment purchases automatically.
+              <p className="text-sm sm:text-base text-ink-2 leading-relaxed max-w-xl mx-auto">
+                Model batch safety stocks, evaluate Economic Order Quantities, and simulate pharmaceutical replenishment metrics chronologically using historical ledger logs.
               </p>
             </div>
 
-            <FileUploader
-              onDataLoaded={handleDataLoaded}
-              onSampleLoaded={handleDataLoaded}
-            />
+            <div className="w-full max-w-3xl">
+              <FileUploader
+                onDataLoaded={handleDataLoaded}
+                onSampleLoaded={handleDataLoaded}
+              />
+            </div>
           </div>
         ) : (
-          <div className="space-y-8 animate-fadeIn">
-            {/* Top Workspace Header */}
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-slate-900/30 border border-slate-900 p-6 rounded-3xl">
+          /* Dashboard Workbench View */
+          <div className="space-y-8 animate-fade-in">
+            {/* Workbench Sub-Header Controls */}
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-paper-2 border border-rule p-5 rounded-md">
               <div>
-                <div className="flex items-center gap-2 text-xs text-slate-500 mb-1">
+                <div className="flex items-center gap-1.5 text-xs text-ink-2 font-body font-medium mb-1">
                   <span>Inventory Health Workspace</span>
-                  <ChevronRight className="w-3 h-3" />
-                  <span className="text-purple-400 font-semibold font-mono">Processed</span>
+                  <ChevronRight className="w-3 h-3 text-rule-hover" />
+                  <span className="text-accent font-semibold">Ready</span>
                 </div>
-                <h2 className="text-2xl font-bold text-slate-200 tracking-tight">
+                <h2 className="text-xl font-display font-semibold text-ink tracking-tight">
                   Procurement Decision Panel
                 </h2>
               </div>
               <button
                 onClick={handleReset}
-                className="flex items-center justify-center gap-2 px-5 py-3 bg-slate-800 hover:bg-slate-750 border border-slate-700/80 text-slate-200 font-semibold rounded-2xl text-sm transition-all duration-200 shadow-md"
+                className="flex items-center justify-center gap-2 px-4 py-2 bg-paper-3 hover:bg-paper-2 border border-rule hover:border-rule-hover text-ink text-xs font-medium rounded-md transition-all duration-150 focus-visible:outline-2 focus-visible:outline-accent"
               >
-                <RefreshCw className="w-4 h-4" />
+                <RefreshCw className="w-3.5 h-3.5 text-ink-2" />
                 Upload New Data
               </button>
             </div>
 
-            {/* KPI Cards Panel */}
+            {/* Metrics Breakdown Cards */}
             <KPICards data={simulationData} />
 
-            {/* Visual Analytics */}
+            {/* Data Visualizations */}
             <AnalyticsCharts data={simulationData} />
 
-            {/* Main Interactive Tables */}
+            {/* Interactive Workspace Data Tables */}
             <DashboardTabs data={simulationData} />
           </div>
         )}
-      </div>
-      
-      {/* Simulation Info Footer */}
-      <footer className="mt-16 text-center text-xs text-slate-600 border-t border-slate-950 pt-8 max-w-7xl mx-auto px-4">
-        <p>© 2026 Aegis Flow Inc. Powered by Seeded FEFO Warehouse & Demand Forecast Model.</p>
-        <p className="mt-1 text-[11px] text-slate-600">
-          Simulation Parameters: Expiry Horizon = 120 Days | Safety Stock Buffer = 20% | Seed = 42 | Sim Date = {simDate}
-        </p>
+      </main>
+
+      {/* Footer (Ft2 Inline Restrained) */}
+      <footer className="border-t border-rule py-6 bg-paper-2/20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-ink-2 font-body">
+          <p>© 2026 Aegis Flow. Seeded FEFO Warehouse & Demand Forecast Simulation.</p>
+          <p className="text-right">
+            Expiry Horizon: 120 Days | Safety Buffer: 20% | Sim Date: {simDate}
+          </p>
+        </div>
       </footer>
     </div>
   );

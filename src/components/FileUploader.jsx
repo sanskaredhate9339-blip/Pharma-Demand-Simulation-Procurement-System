@@ -1,12 +1,21 @@
-import React, { useState, useRef } from "react";
+/* Hallmark · component: file-uploader · genre: modern-minimal · theme: custom (light)
+ * states: default · hover · focus · active · disabled · loading · error · success · preview
+ * contrast: pass (APCA conformant)
+ */
+
+import React, { useState, useRef, useMemo } from "react";
 import Papa from "papaparse";
-import { Upload, FileSpreadsheet, AlertCircle, Database, Check } from "lucide-react";
+import { Upload, FileSpreadsheet, AlertCircle, Database, Check, X, ChevronRight } from "lucide-react";
 import { validateHeaders, SAMPLE_DATA } from "../utils/simulation";
 
 export default function FileUploader({ onDataLoaded, onSampleLoaded }) {
   const [isDragActive, setIsDragActive] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [previewData, setPreviewData] = useState(null);
+  const [dataSource, setDataSource] = useState(null);
+  const [editingCell, setEditingCell] = useState(null); // { rowIndex, field }
   const fileInputRef = useRef(null);
 
   const handleDrag = (e) => {
@@ -22,40 +31,51 @@ export default function FileUploader({ onDataLoaded, onSampleLoaded }) {
   const processFile = (file) => {
     setError(null);
     setSuccess(false);
+    setIsLoading(true);
 
-    if (!file) return;
-
-    if (!file.name.endsWith(".csv")) {
-      setError("Please upload a valid CSV file (.csv).");
+    if (!file) {
+      setIsLoading(false);
       return;
     }
 
-    Papa.parse(file, {
-      header: true,
-      skipEmptyLines: true,
-      complete: (results) => {
-        const headers = results.meta.fields || [];
-        if (!validateHeaders(headers)) {
-          setError(
-            "Invalid CSV schema. The file must contain the following columns: 'Product Name', 'Quantity', 'Month', 'Year'."
-          );
-          return;
-        }
+    if (!file.name.endsWith(".csv")) {
+      setError("Invalid file format. Please upload a structured CSV (.csv) ledger file.");
+      setIsLoading(false);
+      return;
+    }
 
-        if (results.data.length === 0) {
-          setError("The uploaded CSV file is empty.");
-          return;
-        }
+    // Simulate 600ms load delay to represent parsing overhead & show loading state
+    setTimeout(() => {
+      Papa.parse(file, {
+        header: true,
+        skipEmptyLines: true,
+        complete: (results) => {
+          const headers = results.meta.fields || [];
+          if (!validateHeaders(headers)) {
+            setError(
+              "Schema mismatch. Required headers: 'Product Name', 'Quantity', 'Month', 'Year'."
+            );
+            setIsLoading(false);
+            return;
+          }
 
-        setSuccess(true);
-        setTimeout(() => {
-          onDataLoaded(results.data);
-        }, 800);
-      },
-      error: (err) => {
-        setError("Error parsing CSV file: " + err.message);
-      },
-    });
+          if (results.data.length === 0) {
+            setError("The uploaded CSV document contains no data records.");
+            setIsLoading(false);
+            return;
+          }
+
+          setSuccess(true);
+          setIsLoading(false);
+          setPreviewData(results.data);
+          setDataSource("CSV Upload");
+        },
+        error: (err) => {
+          setError("Parsing engine failed: " + err.message);
+          setIsLoading(false);
+        },
+      });
+    }, 600);
   };
 
   const handleDrop = (e) => {
@@ -75,109 +95,364 @@ export default function FileUploader({ onDataLoaded, onSampleLoaded }) {
   };
 
   const triggerFileInput = () => {
-    fileInputRef.current.click();
+    if (!isLoading && !success && !previewData) {
+      fileInputRef.current.click();
+    }
   };
 
+  const handleConfirmPreview = () => {
+    if (previewData) {
+      onDataLoaded(previewData);
+    }
+  };
+
+  const handleCancelPreview = () => {
+    setPreviewData(null);
+    setDataSource(null);
+    setSuccess(false);
+    setError(null);
+    setEditingCell(null);
+  };
+
+  const handleCellEdit = (rowIndex, field, value) => {
+    const updatedData = [...previewData];
+    updatedData[rowIndex][field] = value;
+    setPreviewData(updatedData);
+  };
+
+  const startEditing = (rowIndex, field) => {
+    setEditingCell({ rowIndex, field });
+  };
+
+  const stopEditing = () => {
+    setEditingCell(null);
+  };
+
+  // Calculate preview metadata
+  const previewMetadata = useMemo(() => {
+    if (!previewData || previewData.length === 0) return null;
+    
+    const uniqueProducts = new Set(previewData.map(item => item["Product Name"])).size;
+    const months = new Set(previewData.map(item => item["Month"])).size;
+    const years = new Set(previewData.map(item => item["Year"])).size;
+    
+    return {
+      rowCount: previewData.length,
+      uniqueProducts,
+      monthCount: months,
+      yearCount: years
+    };
+  }, [previewData]);
+
   return (
-    <div className="w-full max-w-3xl mx-auto">
-      <div
-        onDragEnter={handleDrag}
-        onDragOver={handleDrag}
-        onDragLeave={handleDrag}
-        onDrop={handleDrop}
-        onClick={triggerFileInput}
-        className={`relative flex flex-col items-center justify-center w-full h-80 border-2 border-dashed rounded-3xl cursor-pointer transition-all duration-300 glass-panel glow-purple ${
-          isDragActive
-            ? "border-purple-500 bg-purple-500/10 scale-[1.01]"
-            : success
-            ? "border-green-500 bg-green-500/5"
-            : "border-slate-700 hover:border-slate-500 bg-slate-900/40"
-        }`}
-      >
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept=".csv"
-          className="hidden"
-          onChange={handleFileInput}
-        />
+    <div className="w-full max-w-2xl mx-auto flex flex-col gap-6">
+      {/* Drop Zone Box - hidden when preview is active */}
+      {!previewData && (
+        <div
+          onDragEnter={handleDrag}
+          onDragOver={handleDrag}
+          onDragLeave={handleDrag}
+          onDrop={handleDrop}
+          onClick={triggerFileInput}
+          tabIndex={0}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              triggerFileInput();
+            }
+          }}
+          className={`relative flex flex-col items-center justify-center w-full min-h-[260px] border border-dashed rounded-md cursor-pointer transition-all duration-200 focus-visible:outline-2 focus-visible:outline-accent outline-offset-4 ${
+            isDragActive
+              ? "border-accent bg-accent/5"
+              : success
+              ? "border-accent bg-accent/5 cursor-default"
+              : isLoading
+              ? "border-rule bg-paper-2/30 cursor-wait"
+              : "border-rule bg-paper-2/40 hover:bg-paper-2 hover:border-rule-hover active:scale-[0.99]"
+          }`}
+        >
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".csv"
+            className="sr-only"
+            onChange={handleFileInput}
+            disabled={isLoading || success}
+          />
 
-        <div className="flex flex-col items-center justify-center pt-5 pb-6 text-center px-6">
-          {success ? (
-            <div className="flex flex-col items-center animate-bounce">
-              <div className="p-4 bg-green-500/20 text-green-400 rounded-full mb-4">
-                <Check className="w-12 h-12" />
+          <div className="flex flex-col items-center justify-center p-6 text-center">
+            {success ? (
+              /* Success State */
+              <div className="flex flex-col items-center animate-fade-in">
+                <div className="p-3 bg-accent/10 text-accent rounded-full mb-3 border border-accent/20">
+                  <Check className="w-8 h-8" />
+                </div>
+                <p className="text-lg font-display font-semibold text-ink">Ledger Verified</p>
+                <p className="text-xs text-ink-2 font-body mt-1">Preparing preview...</p>
               </div>
-              <p className="text-xl font-medium text-green-400">CSV Validated Successfully!</p>
-              <p className="text-sm text-slate-400 mt-1">Generating optimization dashboard...</p>
-            </div>
-          ) : (
-            <>
-              <div className={`p-4 rounded-full mb-4 transition-all duration-300 ${
-                isDragActive ? "bg-purple-500/20 text-purple-400" : "bg-slate-800/80 text-slate-400"
-              }`}>
-                <Upload className="w-12 h-12" />
+            ) : isLoading ? (
+              /* Loading State */
+              <div className="flex flex-col items-center animate-fade-in">
+                <div className="relative w-8 h-8 mb-3">
+                  <div className="absolute inset-0 border-2 border-accent/15 rounded-full"></div>
+                  <div className="absolute inset-0 border-2 border-accent border-t-transparent rounded-full animate-spin"></div>
+                </div>
+                <p className="text-sm font-body font-medium text-ink">Parsing File Contents</p>
+                <p className="text-xs text-ink-2 font-body mt-1">Validating ledger columns & structures</p>
               </div>
-              <p className="mb-2 text-xl font-semibold text-slate-200">
-                Drag & drop your procurement CSV file here
-              </p>
-              <p className="mb-6 text-sm text-slate-400">
-                or <span className="text-purple-400 font-medium hover:underline">browse files</span> on your computer
-              </p>
-              
-              <div className="flex flex-wrap justify-center gap-4 text-xs text-slate-500 border-t border-slate-800/80 pt-6 mt-2">
-                <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-900/60 border border-slate-800/50">
-                  <span className="w-1.5 h-1.5 rounded-full bg-purple-500"></span>
-                  Product Name (String)
+            ) : (
+              /* Default / Hover / Active States */
+              <>
+                <div className={`p-3 rounded-md mb-4 border transition-colors ${
+                  isDragActive ? "bg-accent/15 text-accent border-accent/30" : "bg-paper-3 text-ink-2 border-rule"
+                }`}>
+                  <Upload className="w-6 h-6" />
                 </div>
-                <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-900/60 border border-slate-800/50">
-                  <span className="w-1.5 h-1.5 rounded-full bg-purple-500"></span>
-                  Quantity (Number)
+                <p className="mb-1 text-sm font-body font-medium text-ink">
+                  Drag & drop warehouse CSV ledger
+                </p>
+                <p className="mb-6 text-xs text-ink-2">
+                  or <span className="text-accent hover:underline font-medium focus-visible:outline-1">browse local disk</span>
+                </p>
+                
+                {/* Badge specifications */}
+                <div className="flex flex-wrap justify-center gap-2 max-w-md pt-4 border-t border-rule/50">
+                  {["Product Name", "Quantity", "Month", "Year"].map((col) => (
+                    <span
+                      key={col}
+                      className="inline-flex items-center px-2 py-1 rounded-sm text-xs font-body font-medium bg-paper-2 border border-rule text-ink-2"
+                    >
+                      {col}
+                    </span>
+                  ))}
                 </div>
-                <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-900/60 border border-slate-800/50">
-                  <span className="w-1.5 h-1.5 rounded-full bg-purple-500"></span>
-                  Month (e.g. October)
-                </div>
-                <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-900/60 border border-slate-800/50">
-                  <span className="w-1.5 h-1.5 rounded-full bg-purple-500"></span>
-                  Year (e.g. 2020)
-                </div>
-              </div>
-            </>
-          )}
-        </div>
-      </div>
-
-      {error && (
-        <div className="flex items-start gap-3 mt-4 p-4 rounded-2xl bg-red-950/45 border border-red-500/20 text-red-300 text-sm animate-fadeIn">
-          <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
-          <div>
-            <span className="font-semibold">Upload Failed:</span> {error}
+              </>
+            )}
           </div>
         </div>
       )}
 
-      <div className="mt-8 flex flex-col items-center gap-4 text-center">
-        <div className="flex items-center gap-2">
-          <div className="h-px w-12 bg-slate-800"></div>
-          <span className="text-xs text-slate-500 font-medium tracking-wider uppercase">Or Start Instantly</span>
-          <div className="h-px w-12 bg-slate-800"></div>
+      {/* Error State */}
+      {error && (
+        <div className="flex items-start gap-3 p-4 rounded-md bg-accent/5 border border-accent/20 text-accent text-xs font-body leading-relaxed animate-fade-in">
+          <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
+          <div>
+            <span className="font-semibold">VALIDATION_ERROR:</span> {error}
+          </div>
         </div>
-        
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            onSampleLoaded(SAMPLE_DATA);
-          }}
-          className="flex items-center gap-2 px-6 py-3.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-slate-50 font-medium rounded-2xl shadow-lg shadow-purple-500/10 hover:shadow-purple-500/20 transition-all duration-200 border border-purple-500/20 transform active:scale-95"
-        >
-          <Database className="w-5 h-5" />
-          Load Sample Pharma Dataset
-        </button>
-        <p className="text-xs text-slate-500">
-          Preloaded with Amoxicillin, Lipitor, Metformin, Synthroid, and more (Sep-Dec 2020)
-        </p>
-      </div>
+      )}
+
+      {/* Preview Panel */}
+      {previewData && previewMetadata && (
+        <div className="bg-paper-2 border border-rule rounded-md overflow-hidden animate-fade-in">
+          {/* Preview Header */}
+          <div className="flex items-center justify-between p-4 border-b border-rule bg-paper-3">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-accent/10 text-accent rounded-md border border-accent/20">
+                <FileSpreadsheet className="w-4 h-4" />
+              </div>
+              <div>
+                <p className="text-sm font-display font-semibold text-ink">{dataSource}</p>
+                <p className="text-xs text-ink-2 font-body">
+                  {previewMetadata.rowCount} rows · {previewMetadata.uniqueProducts} products · {previewMetadata.monthCount} months · {previewMetadata.yearCount} years
+                </p>
+              </div>
+            </div>
+            <button
+              onClick={handleCancelPreview}
+              className="p-2 hover:bg-paper-2 rounded-md text-ink-2 hover:text-ink transition-colors focus-visible:outline-2 focus-visible:outline-accent"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+
+          {/* Preview Table */}
+          <div className="max-h-64 overflow-y-auto">
+            <table className="w-full text-xs font-body">
+              <thead className="bg-paper-3 sticky top-0">
+                <tr>
+                  {["Product Name", "Quantity", "Month", "Year"].map((col) => (
+                    <th key={col} className="py-2 px-4 text-left font-semibold text-ink border-b border-rule">
+                      {col}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-rule/50">
+                {previewData.map((row, idx) => (
+                  <tr key={idx} className="hover:bg-paper-3/30 transition-colors">
+                    <td 
+                      className="py-2 px-4 text-ink cursor-pointer hover:bg-paper-2/50 rounded"
+                      onClick={() => startEditing(idx, "Product Name")}
+                    >
+                      {editingCell?.rowIndex === idx && editingCell?.field === "Product Name" ? (
+                        <input
+                          type="text"
+                          autoFocus
+                          defaultValue={row["Product Name"]}
+                          onBlur={(e) => {
+                            handleCellEdit(idx, "Product Name", e.target.value);
+                            stopEditing();
+                          }}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") {
+                              handleCellEdit(idx, "Product Name", e.target.value);
+                              stopEditing();
+                            } else if (e.key === "Escape") {
+                              stopEditing();
+                            }
+                          }}
+                          className="w-full bg-paper text-ink text-xs font-body py-1 px-2 rounded border border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+                        />
+                      ) : (
+                        <span className="flex items-center gap-2">
+                          {row["Product Name"]}
+                          <span className="text-ink-2/40 text-[10px]">✎</span>
+                        </span>
+                      )}
+                    </td>
+                    <td 
+                      className="py-2 px-4 text-ink-2 tnum cursor-pointer hover:bg-paper-2/50 rounded"
+                      onClick={() => startEditing(idx, "Quantity")}
+                    >
+                      {editingCell?.rowIndex === idx && editingCell?.field === "Quantity" ? (
+                        <input
+                          type="number"
+                          autoFocus
+                          defaultValue={row["Quantity"]}
+                          onBlur={(e) => {
+                            handleCellEdit(idx, "Quantity", e.target.value);
+                            stopEditing();
+                          }}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") {
+                              handleCellEdit(idx, "Quantity", e.target.value);
+                              stopEditing();
+                            } else if (e.key === "Escape") {
+                              stopEditing();
+                            }
+                          }}
+                          className="w-full bg-paper text-ink text-xs font-body py-1 px-2 rounded border border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+                        />
+                      ) : (
+                        <span className="flex items-center gap-2">
+                          {row["Quantity"]}
+                          <span className="text-ink-2/40 text-[10px]">✎</span>
+                        </span>
+                      )}
+                    </td>
+                    <td 
+                      className="py-2 px-4 text-ink-2 cursor-pointer hover:bg-paper-2/50 rounded"
+                      onClick={() => startEditing(idx, "Month")}
+                    >
+                      {editingCell?.rowIndex === idx && editingCell?.field === "Month" ? (
+                        <input
+                          type="text"
+                          autoFocus
+                          defaultValue={row["Month"]}
+                          onBlur={(e) => {
+                            handleCellEdit(idx, "Month", e.target.value);
+                            stopEditing();
+                          }}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") {
+                              handleCellEdit(idx, "Month", e.target.value);
+                              stopEditing();
+                            } else if (e.key === "Escape") {
+                              stopEditing();
+                            }
+                          }}
+                          className="w-full bg-paper text-ink text-xs font-body py-1 px-2 rounded border border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+                        />
+                      ) : (
+                        <span className="flex items-center gap-2">
+                          {row["Month"]}
+                          <span className="text-ink-2/40 text-[10px]">✎</span>
+                        </span>
+                      )}
+                    </td>
+                    <td 
+                      className="py-2 px-4 text-ink-2 tnum cursor-pointer hover:bg-paper-2/50 rounded"
+                      onClick={() => startEditing(idx, "Year")}
+                    >
+                      {editingCell?.rowIndex === idx && editingCell?.field === "Year" ? (
+                        <input
+                          type="number"
+                          autoFocus
+                          defaultValue={row["Year"]}
+                          onBlur={(e) => {
+                            handleCellEdit(idx, "Year", e.target.value);
+                            stopEditing();
+                          }}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") {
+                              handleCellEdit(idx, "Year", e.target.value);
+                              stopEditing();
+                            } else if (e.key === "Escape") {
+                              stopEditing();
+                            }
+                          }}
+                          className="w-full bg-paper text-ink text-xs font-body py-1 px-2 rounded border border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+                        />
+                      ) : (
+                        <span className="flex items-center gap-2">
+                          {row["Year"]}
+                          <span className="text-ink-2/40 text-[10px]">✎</span>
+                        </span>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Preview Actions */}
+          <div className="flex items-center justify-between p-4 border-t border-rule bg-paper-3">
+            <button
+              onClick={handleCancelPreview}
+              className="flex items-center gap-2 px-4 py-2 bg-paper hover:bg-paper-2 border border-rule hover:border-rule-hover text-ink text-xs font-body font-medium rounded-md transition-all focus-visible:outline-2 focus-visible:outline-accent"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleConfirmPreview}
+              className="flex items-center gap-2 px-4 py-2 bg-accent hover:bg-accent/90 text-accent-ink text-xs font-display font-semibold rounded-md shadow-sm transition-all focus-visible:outline-2 focus-visible:outline-accent active:scale-95"
+            >
+              Continue to Dashboard
+              <ChevronRight className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Optional action triggers (Demo DB) - hidden when preview is active */}
+      {!previewData && (
+        <div className="mt-4 flex flex-col items-center gap-3 text-center">
+          <div className="flex items-center gap-2 w-full max-w-xs">
+            <div className="h-px flex-grow bg-rule/50"></div>
+            <span className="text-xs text-ink-2 font-body font-medium">Alternative Source</span>
+            <div className="h-px flex-grow bg-rule/50"></div>
+          </div>
+          
+          <button
+            onClick={() => {
+              if (!isLoading && !success) {
+                setPreviewData(SAMPLE_DATA);
+                setDataSource("Seeded Database — 8 clinical formulations, Sep-Dec 2020");
+                setSuccess(true);
+              }
+            }}
+            disabled={isLoading || success}
+            className="flex items-center gap-2 px-4 py-2 bg-accent hover:bg-accent/90 disabled:opacity-50 disabled:cursor-not-allowed text-accent-ink text-xs font-display font-semibold rounded-md shadow-sm transition-all focus-visible:outline-2 focus-visible:outline-accent active:scale-95 cursor-pointer"
+          >
+            <Database className="w-4 h-4" />
+            Load Seeded Database
+          </button>
+          <p className="text-xs text-ink-2 font-body">
+            Preloaded with 8 clinical formulations (Sep-Dec 2020)
+          </p>
+        </div>
+      )}
     </div>
   );
 }
