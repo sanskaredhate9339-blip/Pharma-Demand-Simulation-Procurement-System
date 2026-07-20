@@ -105,6 +105,12 @@ export function runSimulation(rawData, customSimulationDateStr = "2021-01-01") {
       return false; // Stop processing
     }
     
+    // Skip null/undefined rows
+    if (!row || typeof row !== 'object') {
+      console.warn("Skipping invalid row:", row);
+      return;
+    }
+    
     // Find keys matching required columns (case-insensitive)
     let prodName = "";
     let quantityVal = NaN;
