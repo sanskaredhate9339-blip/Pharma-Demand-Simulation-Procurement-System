@@ -24,7 +24,7 @@ export default function FileUploader({ onDataLoaded, onSampleLoaded }) {
   };
 
   const processFile = (file) => {
-    console.log("CSV upload started");
+    console.log("CSV parsing started");
     setError(null);
     setSuccess(false);
     setIsLoading(true);
@@ -42,6 +42,13 @@ export default function FileUploader({ onDataLoaded, onSampleLoaded }) {
       return;
     }
 
+    // Add 10-second timeout fallback
+    const timeoutId = setTimeout(() => {
+      console.error("CSV parsing timeout - 10 seconds exceeded");
+      setError("CSV processing failed. Please check file format.");
+      setIsLoading(false);
+    }, 10000);
+
     // Simulate 600ms load delay to represent parsing overhead & show loading state
     setTimeout(() => {
       console.log("Starting CSV parsing with PapaParse");
@@ -50,6 +57,7 @@ export default function FileUploader({ onDataLoaded, onSampleLoaded }) {
         skipEmptyLines: true,
         worker: true, // Enable worker mode for large files
         complete: (results) => {
+          clearTimeout(timeoutId);
           console.log("CSV parsing completed", results);
           const headers = results.meta.fields || [];
           console.log("Headers found:", headers);
@@ -70,13 +78,15 @@ export default function FileUploader({ onDataLoaded, onSampleLoaded }) {
             return;
           }
 
-          console.log("Validation successful, setting preview data");
+          console.log("Validation completed, setting preview data");
           setSuccess(true);
           setIsLoading(false);
           setPreviewData(results.data);
           setDataSource("CSV Upload");
+          console.log("Opening dashboard preview");
         },
         error: (err) => {
+          clearTimeout(timeoutId);
           console.error("PapaParse error:", err);
           setError("Parsing engine failed: " + err.message);
           setIsLoading(false);

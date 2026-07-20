@@ -15,8 +15,13 @@ export default function App() {
   // Compute simulation data dynamically
   const simulationData = useMemo(() => {
     if (!rawUploadedData) return null;
+    console.log("Computing simulation data...");
+    const startTime = performance.now();
     try {
-      return runSimulation(rawUploadedData, simDate);
+      const result = runSimulation(rawUploadedData, simDate);
+      const endTime = performance.now();
+      console.log(`Simulation completed in ${(endTime - startTime).toFixed(2)}ms`);
+      return result;
     } catch (err) {
       console.error("Simulation run failed: ", err);
       return null;
@@ -26,8 +31,17 @@ export default function App() {
   const handleDataLoaded = (rawData) => {
     console.log("handleDataLoaded called with", rawData.length, "rows");
     setIsProcessing(true);
+    
+    // Add 15-second timeout for overall processing
+    const processingTimeout = setTimeout(() => {
+      console.error("CSV processing timeout - 15 seconds exceeded");
+      setIsProcessing(false);
+      alert("CSV processing failed. Please check file format.");
+    }, 15000);
+    
     // Simulate brief processing delay for premium user feedback
     setTimeout(() => {
+      clearTimeout(processingTimeout);
       console.log("Setting rawUploadedData");
       setRawUploadedData(rawData);
       setIsProcessing(false);

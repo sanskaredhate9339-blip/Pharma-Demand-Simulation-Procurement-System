@@ -45,12 +45,17 @@ export function formatDate(date) {
 
 /**
  * Validates whether the CSV headers contain all required columns.
+ * Normalizes headers by trimming spaces and converting to lowercase.
  * @param {Array<string>} headers 
  * @returns {boolean}
  */
 export function validateHeaders(headers) {
   const cleanHeaders = headers.map(h => h.trim().toLowerCase());
-  return REQUIRED_COLUMNS.every(col => cleanHeaders.includes(col.toLowerCase()));
+  const requiredLower = REQUIRED_COLUMNS.map(col => col.toLowerCase());
+  console.log("Validating headers:", cleanHeaders, "against required:", requiredLower);
+  const isValid = requiredLower.every(col => cleanHeaders.includes(col));
+  console.log("Validation result:", isValid);
+  return isValid;
 }
 
 /**
@@ -59,6 +64,15 @@ export function validateHeaders(headers) {
  * @returns {Array<Object>} simulation results
  */
 export function runSimulation(rawData, customSimulationDateStr = "2021-01-01") {
+  console.log("runSimulation started with", rawData.length, "rows");
+  
+  // Performance protection: limit dataset size
+  const MAX_ROWS = 10000;
+  if (rawData.length > MAX_ROWS) {
+    console.warn(`Dataset too large (${rawData.length} rows). Limiting to ${MAX_ROWS}.`);
+    rawData = rawData.slice(0, MAX_ROWS);
+  }
+
   // Initialize seeded RNG (seed = 42 to match the python source code)
   const rng = new SeededRNG(42);
 
@@ -68,8 +82,16 @@ export function runSimulation(rawData, customSimulationDateStr = "2021-01-01") {
 
   // Normalize column names and clean data
   const cleanedData = [];
+  let processedRows = 0;
+  const MAX_PROCESSED_ROWS = 50000; // Safety limit for processing
 
   rawData.forEach(row => {
+    processedRows++;
+    if (processedRows > MAX_PROCESSED_ROWS) {
+      console.warn("Maximum processed rows limit reached");
+      return false; // Stop processing
+    }
+    
     // Find keys matching required columns (case-insensitive)
     let prodName = "";
     let quantityVal = NaN;
@@ -114,6 +136,8 @@ export function runSimulation(rawData, customSimulationDateStr = "2021-01-01") {
     });
   });
 
+  console.log("Cleaned data:", cleanedData.length, "rows");
+
   // Group by Product Name and Date
   // Structure: { [product]: { [dateStr]: sumOfQuantity } }
   const productSales = {};
@@ -135,9 +159,19 @@ export function runSimulation(rawData, customSimulationDateStr = "2021-01-01") {
     }
   });
 
+  console.log("Unique products:", uniqueProducts.length);
+
   const records = [];
+  let processedProducts = 0;
+  const MAX_PRODUCTS = 1000; // Safety limit for products
 
   uniqueProducts.forEach(product => {
+    processedProducts++;
+    if (processedProducts > MAX_PRODUCTS) {
+      console.warn("Maximum products limit reached");
+      return false; // Stop processing
+    }
+    
     const datesGroup = productSales[product];
     
     // Sort chronological dates
