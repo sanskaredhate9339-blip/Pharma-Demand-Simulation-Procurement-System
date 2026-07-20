@@ -128,6 +128,7 @@ export function runSimulation(rawData, customSimulationDateStr = "2021-01-01") {
     });
 
     if (!prodName || isNaN(quantityVal) || !monthStr || isNaN(yearVal)) {
+      console.warn(`Skipping row with missing data: prodName="${prodName}", quantity=${quantityVal}, month="${monthStr}", year=${yearVal}`);
       return; // Skip rows that cannot be parsed
     }
 
@@ -135,10 +136,11 @@ export function runSimulation(rawData, customSimulationDateStr = "2021-01-01") {
       return; // Skip negative quantities
     }
 
-    // Date parsing
+    // Date parsing - make case-insensitive
     const cleanMonth = monthStr.toLowerCase();
     const monthIdx = MONTH_NAMES.indexOf(cleanMonth);
     if (monthIdx === -1) {
+      console.warn(`Invalid month string: "${monthStr}" (cleaned: "${cleanMonth}")`);
       return; // Skip invalid month strings
     }
 
