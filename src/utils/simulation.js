@@ -50,7 +50,20 @@ export function formatDate(date) {
  * @returns {boolean}
  */
 export function validateHeaders(headers) {
-  const cleanHeaders = headers.map(h => h.trim().toLowerCase());
+  if (!Array.isArray(headers)) {
+    console.error("Headers is not an array:", headers);
+    return false;
+  }
+  
+  const cleanHeaders = headers.map(h => {
+    // Handle non-string values
+    if (typeof h !== 'string') {
+      console.warn("Header is not a string:", h, typeof h);
+      return String(h || '').trim().toLowerCase();
+    }
+    return h.trim().toLowerCase();
+  });
+  
   const requiredLower = REQUIRED_COLUMNS.map(col => col.toLowerCase());
   console.log("Validating headers:", cleanHeaders, "against required:", requiredLower);
   const isValid = requiredLower.every(col => cleanHeaders.includes(col));
