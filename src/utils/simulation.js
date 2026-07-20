@@ -78,6 +78,7 @@ export function validateHeaders(headers) {
  */
 export function runSimulation(rawData, customSimulationDateStr = "2021-01-01") {
   console.log("runSimulation started with", rawData.length, "rows");
+  console.log("First 5 rows of input data:", rawData.slice(0, 5));
   
   // Performance protection: limit dataset size
   const MAX_ROWS = 10000;
@@ -156,6 +157,10 @@ export function runSimulation(rawData, customSimulationDateStr = "2021-01-01") {
   });
 
   console.log("Cleaned data:", cleanedData.length, "rows");
+  if (cleanedData.length === 0) {
+    console.error("No cleaned data - all rows were filtered out");
+    return [];
+  }
 
   // Group by Product Name and Date
   // Structure: { [product]: { [dateStr]: sumOfQuantity } }
@@ -179,6 +184,10 @@ export function runSimulation(rawData, customSimulationDateStr = "2021-01-01") {
   });
 
   console.log("Unique products:", uniqueProducts.length);
+  if (uniqueProducts.length === 0) {
+    console.error("No unique products found");
+    return [];
+  }
 
   const records = [];
   let processedProducts = 0;
@@ -192,10 +201,12 @@ export function runSimulation(rawData, customSimulationDateStr = "2021-01-01") {
     }
     
     const datesGroup = productSales[product];
+    console.log(`Processing product ${product}, dates:`, Object.keys(datesGroup));
     
     // Sort chronological dates
     const sortedDates = Object.keys(datesGroup).sort((a, b) => new Date(a) - new Date(b));
     const salesValues = sortedDates.map(dStr => datesGroup[dStr]);
+    console.log(`Sales values for ${product}:`, salesValues);
 
     // Calculate Average Monthly Sales
     const totalSalesSum = salesValues.reduce((sum, val) => sum + val, 0);
@@ -302,6 +313,10 @@ export function runSimulation(rawData, customSimulationDateStr = "2021-01-01") {
     });
   });
 
+  console.log("Simulation complete, returning", records.length, "records");
+  if (records.length > 0) {
+    console.log("Sample record:", records[0]);
+  }
   return records;
 }
 
