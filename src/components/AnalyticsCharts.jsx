@@ -228,14 +228,14 @@ export default function AnalyticsCharts({ data }) {
                   dataKey="name"
                   stroke="oklch(76% 0.008 145)"
                   fontSize={9}
-                  fontFamily="var(--font-mono)"
+                  fontFamily="var(--font-body)"
                   tickLine={false}
                   axisLine={{ stroke: "oklch(22% 0.010 145)" }}
                 />
                 <YAxis
                   stroke="oklch(76% 0.008 145)"
                   fontSize={9}
-                  fontFamily="var(--font-mono)"
+                  fontFamily="var(--font-body)"
                   tickLine={false}
                   axisLine={{ stroke: "oklch(22% 0.010 145)" }}
                 />
@@ -245,7 +245,7 @@ export default function AnalyticsCharts({ data }) {
                   height={28}
                   iconSize={8}
                   iconType="circle"
-                  wrapperStyle={{ fontSize: "10px", fontFamily: "var(--font-mono)", color: "oklch(76% 0.008 145)" }}
+                  wrapperStyle={{ fontSize: "10px", fontFamily: "var(--font-body)", color: "oklch(76% 0.008 145)" }}
                 />
                 <Bar dataKey="Usable Stock" fill="oklch(74% 0.12 145)" radius={[2, 2, 0, 0]} />
                 <Bar dataKey="Reorder Point (ROP)" fill="oklch(45% 0.05 145)" radius={[2, 2, 0, 0]} />

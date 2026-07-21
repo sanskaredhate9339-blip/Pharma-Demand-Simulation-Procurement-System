@@ -67,7 +67,7 @@ export default function App() {
                 <span className="font-display font-bold text-base text-ink tracking-tight">
                   Ageis Flow
                 </span>
-                <span className="px-1.5 py-0.5 rounded-sm text-[10px] font-mono font-semibold bg-accent/10 text-accent border border-accent/20">
+                <span className="px-1.5 py-0.5 rounded-sm text-[10px] font-body font-semibold bg-accent/10 text-accent border border-accent/20">
                   v2.0
                 </span>
               </div>

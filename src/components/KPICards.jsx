@@ -69,7 +69,7 @@ export default function KPICards({ data }) {
             {/* Top Row: Metric & Title */}
             <div className="flex items-start justify-between gap-4 mb-5">
               <div className="flex-grow">
-                <span className="text-xs font-mono text-ink-2 uppercase tracking-wider block mb-1">
+                <span className="text-xs font-body text-ink-2 uppercase block mb-1">
                   {card.title}
                 </span>
                 <div className="flex items-baseline gap-2">

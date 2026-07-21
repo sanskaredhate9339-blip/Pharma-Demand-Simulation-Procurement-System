@@ -403,7 +403,7 @@ export default function DashboardTabs({ data }) {
       <div className="bg-paper-2 border border-rule rounded-md overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs border-collapse">
-            <thead className="bg-paper-3/50 text-ink-2 border-b border-rule font-mono uppercase tracking-wider">
+            <thead className="bg-paper-3/50 text-ink-2 border-b border-rule font-body uppercase">
               {activeTab === "procurement" && (
                 <tr>
                   <th className="py-3.5 px-5 cursor-pointer hover:text-ink" onClick={() => requestSort("Product Name")}>
@@ -720,7 +720,7 @@ export default function DashboardTabs({ data }) {
               of <span className="font-semibold text-ink">{sortedData.length}</span> entries
             </div>
             
-            <div className="flex items-center gap-1.5 font-mono">
+            <div className="flex items-center gap-1.5 font-body">
               <button
                 onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
                 disabled={currentPage === 1}
