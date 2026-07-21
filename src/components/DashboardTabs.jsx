@@ -14,7 +14,7 @@ export default function DashboardTabs({ data }) {
   
   // Pagination State
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 25;
+  const itemsPerPage = 8;
 
   // Filter Data according to active tab
   const tabFilteredData = useMemo(() => {
