@@ -163,20 +163,20 @@ export default function DashboardTabs({ data }) {
   const getActionBadge = (action) => {
     if (action.includes("RESTOCK")) {
       return (
-        <span className="inline-flex items-center px-2 py-0.5 rounded-sm text-xs font-body font-medium bg-rose-500/10 text-rose-400 border border-rose-500/20">
+        <span className="inline-flex items-center px-2 py-0.5 rounded-sm text-xs font-body font-medium bg-red-500/10 text-red-500 border border-red-500/20">
           RESTOCK
         </span>
       );
     }
     if (action.includes("EXCESSIVE")) {
       return (
-        <span className="inline-flex items-center px-2 py-0.5 rounded-sm text-xs font-body font-medium bg-amber-500/10 text-amber-400 border border-amber-500/20">
+        <span className="inline-flex items-center px-2 py-0.5 rounded-sm text-xs font-body font-medium bg-orange-500/10 text-orange-500 border border-orange-500/20">
           OVERSTOCK
         </span>
       );
     }
     return (
-      <span className="inline-flex items-center px-2 py-0.5 rounded-sm text-xs font-body font-medium bg-accent/10 text-accent border border-accent/20">
+      <span className="inline-flex items-center px-2 py-0.5 rounded-sm text-xs font-body font-medium bg-green-500/10 text-green-500 border border-green-500/20">
         OPTIMAL
       </span>
     );
@@ -188,9 +188,9 @@ export default function DashboardTabs({ data }) {
       <div className="flex flex-wrap border-b border-rule gap-1">
         <button
           onClick={() => { setActiveTab("procurement"); setSearchQuery(""); setSortConfig({ key: null, direction: "asc" }); }}
-          className={`flex items-center gap-2 px-4 py-3 text-sm font-body font-medium border-b-2 transition-all duration-150 cursor-pointer focus-visible:outline-2 focus-visible:outline-accent ${
+          className={`flex items-center gap-2 px-4 py-3 text-sm font-body font-medium border-b-2 transition-all duration-300 cursor-pointer focus-visible:outline-2 focus-visible:outline-accent relative ${
             activeTab === "procurement"
-              ? "border-accent text-accent bg-accent/5"
+              ? "border-red-500 text-red-500 bg-red-500/5"
               : "border-transparent text-ink-2 hover:text-ink hover:bg-paper-2/40"
           }`}
         >
@@ -205,9 +205,9 @@ export default function DashboardTabs({ data }) {
 
         <button
           onClick={() => { setActiveTab("overstock"); setSearchQuery(""); setSortConfig({ key: null, direction: "asc" }); }}
-          className={`flex items-center gap-2 px-4 py-3 text-sm font-body font-medium border-b-2 transition-all duration-150 cursor-pointer focus-visible:outline-2 focus-visible:outline-accent ${
+          className={`flex items-center gap-2 px-4 py-3 text-sm font-body font-medium border-b-2 transition-all duration-300 cursor-pointer focus-visible:outline-2 focus-visible:outline-accent relative ${
             activeTab === "overstock"
-              ? "border-accent text-accent bg-accent/5"
+              ? "border-orange-500 text-orange-500 bg-orange-500/5"
               : "border-transparent text-ink-2 hover:text-ink hover:bg-paper-2/40"
           }`}
         >
@@ -222,9 +222,9 @@ export default function DashboardTabs({ data }) {
 
         <button
           onClick={() => { setActiveTab("expiry"); setSearchQuery(""); setSortConfig({ key: null, direction: "asc" }); }}
-          className={`flex items-center gap-2 px-4 py-3 text-sm font-body font-medium border-b-2 transition-all duration-150 cursor-pointer focus-visible:outline-2 focus-visible:outline-accent ${
+          className={`flex items-center gap-2 px-4 py-3 text-sm font-body font-medium border-b-2 transition-all duration-300 cursor-pointer focus-visible:outline-2 focus-visible:outline-accent relative ${
             activeTab === "expiry"
-              ? "border-accent text-accent bg-accent/5"
+              ? "border-rose-500 text-rose-500 bg-rose-500/5"
               : "border-transparent text-ink-2 hover:text-ink hover:bg-paper-2/40"
           }`}
         >
@@ -234,9 +234,9 @@ export default function DashboardTabs({ data }) {
 
         <button
           onClick={() => { setActiveTab("profitability"); setSearchQuery(""); setSortConfig({ key: null, direction: "asc" }); }}
-          className={`flex items-center gap-2 px-4 py-3 text-sm font-body font-medium border-b-2 transition-all duration-150 cursor-pointer focus-visible:outline-2 focus-visible:outline-accent ${
+          className={`flex items-center gap-2 px-4 py-3 text-sm font-body font-medium border-b-2 transition-all duration-300 cursor-pointer focus-visible:outline-2 focus-visible:outline-accent relative ${
             activeTab === "profitability"
-              ? "border-accent text-accent bg-accent/5"
+              ? "border-blue-500 text-blue-500 bg-blue-500/5"
               : "border-transparent text-ink-2 hover:text-ink hover:bg-paper-2/40"
           }`}
         >
@@ -246,9 +246,9 @@ export default function DashboardTabs({ data }) {
 
         <button
           onClick={() => { setActiveTab("eoq"); setSearchQuery(""); setSortConfig({ key: null, direction: "asc" }); }}
-          className={`flex items-center gap-2 px-4 py-3 text-sm font-body font-medium border-b-2 transition-all duration-150 cursor-pointer focus-visible:outline-2 focus-visible:outline-accent ${
+          className={`flex items-center gap-2 px-4 py-3 text-sm font-body font-medium border-b-2 transition-all duration-300 cursor-pointer focus-visible:outline-2 focus-visible:outline-accent relative ${
             activeTab === "eoq"
-              ? "border-accent text-accent bg-accent/5"
+              ? "border-cyan-500 text-cyan-500 bg-cyan-500/5"
               : "border-transparent text-ink-2 hover:text-ink hover:bg-paper-2/40"
           }`}
         >
@@ -258,9 +258,9 @@ export default function DashboardTabs({ data }) {
 
         <button
           onClick={() => { setActiveTab("ledger"); setSearchQuery(""); setSortConfig({ key: null, direction: "asc" }); }}
-          className={`flex items-center gap-2 px-4 py-3 text-sm font-body font-medium border-b-2 transition-all duration-150 cursor-pointer focus-visible:outline-2 focus-visible:outline-accent ${
+          className={`flex items-center gap-2 px-4 py-3 text-sm font-body font-medium border-b-2 transition-all duration-300 cursor-pointer focus-visible:outline-2 focus-visible:outline-accent relative ${
             activeTab === "ledger"
-              ? "border-accent text-accent bg-accent/5"
+              ? "border-green-500 text-green-500 bg-green-500/5"
               : "border-transparent text-ink-2 hover:text-ink hover:bg-paper-2/40"
           }`}
         >

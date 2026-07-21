@@ -471,7 +471,7 @@ export default function FileUploader({ onDataLoaded, onSampleLoaded }) {
             </button>
             <button
               onClick={handleConfirmPreview}
-              className="flex items-center gap-2 px-4 py-2 bg-accent hover:bg-accent/90 text-accent-ink text-xs font-display font-semibold rounded-md shadow-sm transition-all focus-visible:outline-2 focus-visible:outline-accent active:scale-95"
+              className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white text-xs font-display font-semibold rounded-md shadow-sm hover:shadow-md transition-all duration-200 focus-visible:outline-2 focus-visible:outline-green-500 active:scale-95"
             >
               Continue to Dashboard
               <ChevronRight className="w-3.5 h-3.5" />

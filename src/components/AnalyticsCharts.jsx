@@ -22,9 +22,9 @@ export default function AnalyticsCharts({ data }) {
     const optimal = data.filter((item) => item.Action.includes("OPTIMAL")).length;
 
     return [
-      { name: "Restock Required", value: restock, color: "oklch(62% 0.18 15)" },  // Soft Crimson
-      { name: "Optimal Stock", value: optimal, color: "oklch(74% 0.12 145)" },   // Clinical Mint
-      { name: "Excessive Stock", value: excessive, color: "oklch(75% 0.13 75)" }, // Soft Amber
+      { name: "Restock Required", value: restock, color: "#EF4444" },  // Red
+      { name: "Optimal Stock", value: optimal, color: "#16A34A" },   // Emerald Green
+      { name: "Excessive Stock", value: excessive, color: "#F59E0B" }, // Amber
     ].filter(item => item.value > 0);
   }, [data]);
 
@@ -245,11 +245,11 @@ export default function AnalyticsCharts({ data }) {
                   height={28}
                   iconSize={8}
                   iconType="circle"
-                  wrapperStyle={{ fontSize: "10px", fontFamily: "var(--font-body)", color: "oklch(76% 0.008 145)" }}
+                  wrapperStyle={{ fontSize: "10px", fontFamily: "var(--font-body)", color: "#64748B" }}
                 />
-                <Bar dataKey="Usable Stock" fill="oklch(74% 0.12 145)" radius={[2, 2, 0, 0]} />
-                <Bar dataKey="Reorder Point (ROP)" fill="oklch(45% 0.05 145)" radius={[2, 2, 0, 0]} />
-                <Bar dataKey="Predicted Demand" fill="oklch(60% 0.14 250)" radius={[2, 2, 0, 0]} />
+                <Bar dataKey="Usable Stock" fill="#16A34A" radius={[2, 2, 0, 0]} />
+                <Bar dataKey="Reorder Point (ROP)" fill="#3B82F6" radius={[2, 2, 0, 0]} />
+                <Bar dataKey="Predicted Demand" fill="#F59E0B" radius={[2, 2, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           )}

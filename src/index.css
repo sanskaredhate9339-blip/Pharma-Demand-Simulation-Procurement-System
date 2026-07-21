@@ -1,16 +1,26 @@
 @import "tailwindcss";
 
 @theme {
-  --color-paper:        oklch(98% 0.01 85);
-  --color-paper-2:      oklch(95% 0.012 85);
-  --color-paper-3:      oklch(92% 0.015 85);
-  --color-ink:          oklch(15% 0.02 85);
-  --color-ink-2:        oklch(45% 0.015 85);
-  --color-rule:         oklch(85% 0.02 85);
-  --color-rule-hover:   oklch(75% 0.025 85);
-  --color-accent:       oklch(65% 0.15 145);
-  --color-accent-ink:   oklch(98% 0.01 85);
-  --color-focus:        oklch(55% 0.18 145);
+  --color-paper:        #F8FAFC;
+  --color-paper-2:      #F1F5F9;
+  --color-paper-3:      #E2E8F0;
+  --color-ink:          #0F172A;
+  --color-ink-2:        #64748B;
+  --color-rule:         #CBD5E1;
+  --color-rule-hover:   #94A3B8;
+  
+  --color-accent:       #16A34A;
+  --color-accent-ink:   #FFFFFF;
+  --color-focus:        #22C55E;
+  
+  --color-primary:      #16A34A;
+  --color-primary-light: #22C55E;
+  --color-info:         #3B82F6;
+  --color-cyan:         #06B6D4;
+  --color-warning:      #F59E0B;
+  --color-orange:       #F97316;
+  --color-danger:       #EF4444;
+  --color-rose:         #F43F5E;
 
   --font-display: "Outfit", ui-sans-serif, system-ui, sans-serif;
   --font-body:    "Inter", ui-sans-serif, system-ui, sans-serif;
@@ -23,7 +33,7 @@
 
 @layer base {
   body {
-    background-color: var(--color-paper);
+    background: linear-gradient(135deg, #F8FAFC 0%, #FFFFFF 100%);
     color: var(--color-ink);
     font-family: var(--font-body);
     min-height: 100vh;
@@ -56,4 +66,47 @@
 *:focus-visible {
   outline: 2px solid var(--color-focus);
   outline-offset: 2px;
+}
+
+/* KPI Card accent borders */
+.kpi-accent-procurement {
+  border-left: 4px solid var(--color-danger);
+}
+
+.kpi-accent-overstock {
+  border-left: 4px solid var(--color-orange);
+}
+
+.kpi-accent-expiry {
+  border-left: 4px solid var(--color-rose);
+}
+
+.kpi-accent-active {
+  border-left: 4px solid var(--color-primary);
+}
+
+/* Card hover animations */
+.card-hover {
+  transition: all 0.3s ease;
+}
+
+.card-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+/* Fade-in animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-out;
 }

@@ -61,10 +61,14 @@ export default function KPICards({ data }) {
         const Icon = card.icon;
         const percent = totalItems > 0 ? (card.value / totalItems) * 100 : 0;
         
+        const accentClass = idx === 0 ? 'kpi-accent-procurement' : 
+                            idx === 1 ? 'kpi-accent-overstock' : 
+                            idx === 2 ? 'kpi-accent-expiry' : 'kpi-accent-active';
+        
         return (
           <div
             key={idx}
-            className="bg-paper-2 border border-rule hover:border-rule-hover p-5 rounded-md flex flex-col justify-between transition-colors duration-150"
+            className={`bg-paper-2 border border-rule hover:border-rule-hover p-5 rounded-md flex flex-col justify-between card-hover ${accentClass}`}
           >
             {/* Top Row: Metric & Title */}
             <div className="flex items-start justify-between gap-4 mb-5">
