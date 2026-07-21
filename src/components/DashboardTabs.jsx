@@ -6,27 +6,38 @@ import {
 } from "lucide-react";
 
 export default function DashboardTabs({ data }) {
+  console.log("DashboardTabs received data:", data.length, "records");
+  
   const [activeTab, setActiveTab] = useState("procurement");
   const [searchQuery, setSearchQuery] = useState("");
   const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" });
   
   // Pagination State
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 8;
+  const itemsPerPage = 25;
 
   // Filter Data according to active tab
   const tabFilteredData = useMemo(() => {
+    console.log("Filtering data for tab:", activeTab);
+    let filtered;
     switch (activeTab) {
       case "procurement":
-        return data.filter((item) => item.Action.includes("RESTOCK"));
+        filtered = data.filter((item) => item.Action.includes("RESTOCK"));
+        console.log("Procurement filter result:", filtered.length, "items");
+        return filtered;
       case "overstock":
-        return data.filter((item) => item.Action.includes("EXCESSIVE"));
+        filtered = data.filter((item) => item.Action.includes("EXCESSIVE"));
+        console.log("Overstock filter result:", filtered.length, "items");
+        return filtered;
       case "expiry":
-        return data.filter((item) => item["Risky Stock (Near Expiry)"] > 0);
+        filtered = data.filter((item) => item["Risky Stock (Near Expiry)"] > 0);
+        console.log("Expiry filter result:", filtered.length, "items");
+        return filtered;
       case "profitability":
       case "eoq":
       case "ledger":
       default:
+        console.log("No filter applied, returning all data:", data.length, "items");
         return data;
     }
   }, [data, activeTab]);
@@ -72,10 +83,13 @@ export default function DashboardTabs({ data }) {
   // Paginate sorted data
   const paginatedData = useMemo(() => {
     const startIndex = (currentPage - 1) * itemsPerPage;
-    return sortedData.slice(startIndex, startIndex + itemsPerPage);
+    const result = sortedData.slice(startIndex, startIndex + itemsPerPage);
+    console.log(`Pagination: page ${currentPage}, items ${startIndex + 1}-${startIndex + result.length} of ${sortedData.length} total`);
+    return result;
   }, [sortedData, currentPage]);
 
   const totalPages = Math.ceil(sortedData.length / itemsPerPage) || 1;
+  console.log(`Total pages: ${totalPages}, items per page: ${itemsPerPage}`);
 
   // --- Aggregate Metrics for Top Sections ---
   
